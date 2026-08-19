@@ -4,8 +4,11 @@ The brief referenced named agents and skill packages. Mapping used in this imple
 
 ## Design with Intent (installed and applied)
 
-`npx skills add ghaida/intent --all` → `.agents/skills/` (17 skills). The named specialist
-personas map onto the skills as follows, and onto the documents they produced here:
+`npx skills add ghaida/intent --all` → `.agents/skills/` (17 skills). Note: the installed skill
+package does not itself define the persona names used in the brief (Noor/Ember/Wren/Vigil) — the
+only named mode in the package is "Sage", an alias for the `philosopher` reasoning protocol. The
+brief's personas are therefore treated as role labels and mapped onto the skills as follows,
+with the documents each role produced here:
 
 | Persona (brief) | Skills | Output in this repo |
 |---|---|---|
