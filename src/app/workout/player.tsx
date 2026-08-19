@@ -10,6 +10,7 @@ import { smallestIncrement } from '@/domain/units';
 import { cancelRestEndNotification, scheduleRestEndNotification } from '@/services/restNotifications';
 import { useSessionStore } from '@/state/sessionStore';
 import { useExerciseLibrary, useProfile, useSaveSession, useSessions } from '@/state/queries';
+import { restEncouragement } from '@/ui/coachVoice';
 import { PrCelebration } from '@/ui/components/prCelebration';
 import { AppText, Button } from '@/ui/components/primitives';
 import { RestTimerOverlay } from '@/ui/components/restTimer';
@@ -181,6 +182,7 @@ export default function WorkoutPlayer() {
           <RestTimerOverlay
             secondsRemaining={(restEndsAt - nowMs) / 1000}
             totalSeconds={restTotalSeconds}
+            encouragement={restEncouragement(workingSets.length)}
             nextUp={
               workingSets.length >= currentExercise.targetSets && nextExercise
                 ? byId[nextExercise.exerciseId]?.name

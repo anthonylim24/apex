@@ -2,7 +2,9 @@ import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SEED_EXERCISES } from '@/data/seedExercises';
+import type { Equipment, MovementPattern } from '@/domain/types';
 import { useSessionStore, type SetDraft } from '@/state/sessionStore';
+import { ExerciseAnimation } from '@/ui/components/exerciseAnimation';
 import { ExerciseCard } from '@/ui/components/exerciseCard';
 import { MuscleDiagram } from '@/ui/components/muscleDiagram';
 import { PrCelebration } from '@/ui/components/prCelebration';
@@ -106,6 +108,34 @@ export default function Gallery() {
           onPress={() => undefined}
           onToggleFavorite={() => setFavorite((f) => !f)}
         />
+      </Section>
+
+      <Section title="ExerciseAnimation — all movement patterns" testID="gallery-exercise-animation">
+        <Card style={styles.animGrid}>
+          {(
+            [
+              ['squat', ['barbell']],
+              ['hinge', ['barbell']],
+              ['lunge', ['dumbbell']],
+              ['horizontal_push', ['barbell', 'bench']],
+              ['horizontal_pull', ['barbell']],
+              ['vertical_push', ['barbell']],
+              ['vertical_pull', ['pullup_bar']],
+              ['isolation', ['dumbbell']],
+              ['core', ['bodyweight']],
+              ['carry', ['kettlebell']],
+            ] as [MovementPattern, Equipment[]][]
+          ).map(([pattern, equipment]) => (
+            <ExerciseAnimation
+              key={pattern}
+              pattern={pattern}
+              equipment={equipment}
+              size={140}
+              caption={pattern.replace(/_/g, ' ')}
+              testID={`gallery-anim-${pattern}`}
+            />
+          ))}
+        </Card>
       </Section>
 
       <Section title="MuscleDiagram" testID="gallery-muscle-diagram">
@@ -225,4 +255,10 @@ const styles = StyleSheet.create({
   sectionTitle: { marginBottom: spacing.md },
   miscCard: { gap: spacing.md },
   badgeRow: { flexDirection: 'row', gap: spacing.sm },
+  animGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: spacing.lg,
+  },
 });

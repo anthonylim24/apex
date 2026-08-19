@@ -12,6 +12,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Line, Rect as SvgRect } from 'react-native-svg';
 import { colors, radius, spacing, touch, type } from '../theme';
 
 type TypeToken = keyof typeof type;
@@ -170,9 +171,14 @@ export const EmptyState = ({
 }) => (
   <View style={styles.empty} testID={testID}>
     <View style={styles.emptyGlyph}>
-      <AppText variant="title" color={colors.accent}>
-        ◆
-      </AppText>
+      {/* A resting barbell — waiting to be picked up. */}
+      <Svg width={44} height={24} viewBox="0 0 44 24">
+        <Line x1={4} y1={12} x2={40} y2={12} stroke={colors.accent} strokeWidth={3} strokeLinecap="round" />
+        <SvgRect x={8} y={3} width={5} height={18} rx={2} fill={colors.accent} />
+        <SvgRect x={31} y={3} width={5} height={18} rx={2} fill={colors.accent} />
+        <SvgRect x={14} y={6} width={4} height={12} rx={1.5} fill={colors.accentMuted} stroke={colors.accent} strokeWidth={1.5} />
+        <SvgRect x={26} y={6} width={4} height={12} rx={1.5} fill={colors.accentMuted} stroke={colors.accent} strokeWidth={1.5} />
+      </Svg>
     </View>
     <AppText variant="heading" style={styles.emptyTitle}>
       {title}

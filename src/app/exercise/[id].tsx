@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { e1RmTrend } from '@/domain/stats';
 import { toDisplayWeight } from '@/domain/units';
 import { useExerciseLibrary, useFavorites, useProfile, useSessions, useToggleFavorite } from '@/state/queries';
+import { ExerciseAnimation } from '@/ui/components/exerciseAnimation';
 import { formatMuscle } from '@/ui/components/exerciseCard';
 import { MuscleDiagram } from '@/ui/components/muscleDiagram';
 import { ProgressChart } from '@/ui/components/progressChart';
@@ -65,6 +66,17 @@ export default function ExerciseDetail() {
       <AppText variant="body" color={colors.textSecondary} style={styles.description}>
         {exercise.description}
       </AppText>
+
+      <Card style={styles.card} testID="exercise-demo">
+        <AppText variant="label" color={colors.textTertiary}>
+          Movement demonstration
+        </AppText>
+        <ExerciseAnimation
+          pattern={exercise.movementPattern}
+          equipment={exercise.equipment}
+          caption={`${formatMuscle(exercise.movementPattern)} pattern · coached tempo`}
+        />
+      </Card>
 
       <Card style={styles.card} testID="exercise-muscles">
         <AppText variant="label" color={colors.textTertiary}>

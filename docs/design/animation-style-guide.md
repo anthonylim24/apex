@@ -4,6 +4,24 @@ Governs every visual asset: exercise form animations, icons, empty states, celeb
 **Enforce this guide before bulk asset generation** (risk register: inconsistent animation style
 is cheaper to prevent than to fix).
 
+## 0. Shipped baseline: procedural movement demonstrations
+
+Every exercise ships **today** with an animated demonstration: a procedural side-view line-art
+character (`src/ui/components/exerciseAnimation/`) that performs the exercise's movement pattern
+— all 10 patterns choreographed as keyframed poses on a 200×200 stage, with pattern-aware
+equipment (barbell plate end-on, dumbbells, kettlebell, bench, pull-up bar). Properties:
+
+- Exactly this guide's aesthetic: round-cap line art, theme-token colors, equipment in accent
+  lime, 2.4 s eccentric-emphasis rep loop (carry: 1.6 s stride, plank: 3.2 s brace breath).
+- Renders identically on iOS/Android/web, weighs zero asset bytes, re-themes automatically,
+  honors reduce-motion (mid-rep still).
+- Choreography is data (`choreography.ts` keyframes) with unit tests asserting stage bounds,
+  loop closure, and interpolation, so new patterns/variants are reviewable in code.
+
+Per-exercise Lottie animations (below) remain the richer end state; when an exercise's Lottie
+file lands, the detail screen can prefer it. The procedural system is the guaranteed floor, not
+a placeholder.
+
 ## 1. Exercise form animations (Lottie)
 
 **Format:** Lottie JSON (lightweight, themeable, 60 fps on all platforms, plays via

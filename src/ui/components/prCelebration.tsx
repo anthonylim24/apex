@@ -13,6 +13,7 @@ import * as Haptics from 'expo-haptics';
 import type { PersonalRecord, Unit } from '../../domain/types';
 import { formatWeight } from '../../domain/units';
 import { colors, motion, radius, spacing } from '../theme';
+import { ConfettiBurst } from './confettiBurst';
 import { AppText, Button } from './primitives';
 
 const PR_LABEL: Record<PersonalRecord['kind'], string> = {
@@ -62,6 +63,7 @@ export const PrCelebration = ({
 
   return (
     <View style={styles.backdrop} testID={testID}>
+      <ConfettiBurst />
       <Animated.View style={[styles.card, animatedStyle]}>
         <View style={styles.medal}>
           <AppText variant="title" color={colors.textInverse}>

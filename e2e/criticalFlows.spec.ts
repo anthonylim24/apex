@@ -48,7 +48,8 @@ const logSetAndSkipRest = async (page: Page, rpe?: number): Promise<void> => {
 
 test('onboarding creates a profile and lands on home', async ({ page }) => {
   await completeOnboarding(page);
-  await expect(page.getByTestId('home-greeting')).toContainText(/ready/i);
+  await expect(page.getByTestId('home-greeting')).toContainText(/session\?|ready/i);
+  await expect(page.getByTestId('home-coach-note')).toContainText(/coach/i);
   await expect(page.getByTestId('home-weekly-summary')).toContainText('This week');
 
   // Profile survives a full reload (offline-first local persistence).
@@ -147,9 +148,11 @@ test('exercise library: search, filter, detail, favorite', async ({ page }) => {
   await page.getByTestId('library-search').fill('bench');
   await expect(page.getByTestId('exercise-card-bench-press')).toBeVisible();
 
-  // Detail screen: education content + muscle diagram.
+  // Detail screen: education content + animated demonstration + muscle diagram.
   await page.getByTestId('exercise-card-bench-press').click();
   await expect(page.getByTestId('exercise-name')).toContainText('Barbell Bench Press');
+  await expect(page.getByTestId('exercise-demo')).toBeVisible();
+  await expect(page.getByTestId('exercise-animation')).toBeVisible();
   await expect(page.getByTestId('exercise-instructions')).toContainText('How to perform');
   await expect(page.getByTestId('exercise-muscles')).toBeVisible();
 
@@ -183,6 +186,8 @@ test('component gallery renders the critical components', async ({ page }) => {
   await page.goto('/dev/gallery');
   await expect(page.getByTestId('gallery-screen')).toBeVisible();
   await expect(page.getByTestId('gallery-setlogger')).toBeVisible();
+  await expect(page.getByTestId('gallery-anim-squat')).toBeVisible();
+  await expect(page.getByTestId('gallery-anim-carry')).toBeVisible();
   await page.getByTestId('set-logger-log').click();
   await expect(page.getByTestId('gallery-logged-count')).toContainText('1');
   await page.getByTestId('gallery-show-pr').click();

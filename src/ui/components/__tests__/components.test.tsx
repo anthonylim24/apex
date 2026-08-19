@@ -38,6 +38,18 @@ describe('RestTimerOverlay', () => {
     await render(<RestTimerOverlay {...props} secondsRemaining={-3} />);
     expect(screen.getByTestId('rest-timer-clock')).toHaveTextContent('0:00');
   });
+
+  it('shows the coach encouragement line when provided', async () => {
+    await render(<RestTimerOverlay {...props} encouragement="Good set. Big breaths." />);
+    expect(screen.getByTestId('rest-timer-encouragement')).toHaveTextContent(
+      'Good set. Big breaths.',
+    );
+  });
+
+  it('warms up the label in the final seconds', async () => {
+    await render(<RestTimerOverlay {...props} secondsRemaining={8} />);
+    expect(screen.getByText('Almost go')).toBeOnTheScreen();
+  });
 });
 
 describe('Stepper', () => {

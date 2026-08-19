@@ -5,7 +5,9 @@ import { weeklySummaries } from '@/domain/stats';
 import { formatWeight } from '@/domain/units';
 import { useSessionStore } from '@/state/sessionStore';
 import { useExerciseLibrary, useProfile, useSessions } from '@/state/queries';
+import { coachNoteForDate, greetingForHour } from '@/ui/coachVoice';
 import { AppText, Button, Card, Screen } from '@/ui/components/primitives';
+import { ApexWordmark } from '@/ui/components/wordmark';
 import { colors, spacing } from '@/ui/theme';
 
 /** Home ("Train") — one glance: start training, this week, last workout. */
@@ -22,11 +24,16 @@ export default function Home() {
   const thisWeek = weeks[weeks.length - 1];
   const lastSession = completed[0];
 
+  const greeting = profile.data?.displayName
+    ? `Ready, ${profile.data.displayName}?`
+    : greetingForHour(new Date().getHours());
+
   return (
     <Screen testID="home-screen">
       <View style={styles.header}>
+        <ApexWordmark />
         <AppText variant="title" testID="home-greeting">
-          {profile.data?.displayName ? `Ready, ${profile.data.displayName}?` : 'Ready to train?'}
+          {greeting}
         </AppText>
         <AppText variant="body" color={colors.textSecondary}>
           {profile.data
@@ -73,6 +80,18 @@ export default function Home() {
         </View>
       </Card>
 
+      <Card style={styles.coachCard} testID="home-coach-note">
+        <View style={styles.coachAccent} />
+        <View style={styles.coachBody}>
+          <AppText variant="label" color={colors.accent}>
+            {'Coach\u2019s note'}
+          </AppText>
+          <AppText variant="body" color={colors.textSecondary} style={styles.coachText}>
+            {coachNoteForDate()}
+          </AppText>
+        </View>
+      </Card>
+
       {lastSession ? (
         <Card style={styles.card} testID="home-last-workout">
           <AppText variant="label" color={colors.textTertiary}>
@@ -116,7 +135,20 @@ const Stat = ({ label, value }: { label: string; value: string }) => (
 );
 
 const styles = StyleSheet.create({
-  header: { paddingVertical: spacing.xl, gap: spacing.xs },
+  header: { paddingVertical: spacing.xl, gap: spacing.sm },
+  coachCard: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    marginBottom: spacing.lg,
+    padding: spacing.lg,
+  },
+  coachAccent: {
+    width: 3,
+    borderRadius: 2,
+    backgroundColor: colors.accent,
+  },
+  coachBody: { flex: 1, gap: spacing.xs },
+  coachText: { lineHeight: 22 },
   startButton: { minHeight: 72, marginBottom: spacing.lg },
   resumeCard: { gap: spacing.md, marginBottom: spacing.lg, borderColor: colors.active },
   card: { gap: spacing.sm, marginBottom: spacing.lg },

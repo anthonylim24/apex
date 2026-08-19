@@ -98,3 +98,20 @@ alternative enumerates the muscles.
 Plain language, coach-not-cop. Numbers explained ("RPE 8 — 2 reps left"), suggestions justified
 ("You hit the top of the rep range on every set with effort to spare"), rest framed as progress.
 Never: guilt, urgency, comparison to other users.
+
+## 7. Personality & charm (where, and where not)
+
+Charm is budgeted to moments that are *earned* or *idle* — never to moments that compete with
+lifting. The implemented personality layer (`src/ui/coachVoice.ts` + components):
+
+| Moment | Treatment | Why it's safe |
+|---|---|---|
+| Home header | Apex wordmark (rising-line mark) + time-of-day greeting ("Morning session?") | Idle browsing moment |
+| Home card | Daily "Coach's note" — one science-grounded line, rotates by calendar day (deterministic, no variable reward) | Educates; never nags |
+| Exercise detail | Procedural movement demonstration at coached tempo | Educational motion, reduce-motion aware |
+| Rest timer | Ring warms cyan → lime in the final 10 s ("Almost go"); one rotating coach line per set ("Good set. Big breaths.") — cycled by set count, not random | Rest is the one idle moment mid-workout |
+| New PR | Single confetti burst (14 deterministic pieces, ~1.1 s, once) + gold card | Earned, brief, honest — fires only on real records |
+| Empty states | Resting-barbell glyph | Warmth without mascot kitsch |
+
+Rules: no charm inside the SetLogger interaction loop; every flourish respects reduce-motion;
+all copy is deterministic (day/set index), so delight never becomes a slot machine.
