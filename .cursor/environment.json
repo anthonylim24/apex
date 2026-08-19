@@ -1,10 +1,10 @@
 {
-  "name": "apex (Expo SDK 57)",
-  "install": "npm ci",
+  "name": "apex (Expo SDK 57 · Bun)",
+  "install": "command -v bun >/dev/null 2>&1 || curl -fsSL https://bun.com/install | bash\nexport BUN_INSTALL=\"$HOME/.bun\"\nexport PATH=\"$BUN_INSTALL/bin:$PATH\"\nbun install --frozen-lockfile",
   "terminals": [
     {
       "name": "expo",
-      "command": "npx expo start --port 8081"
+      "command": "export PATH=\"$HOME/.bun/bin:$PATH\"; bunx expo start --port 8081"
     }
   ],
   "ports": [8081]
