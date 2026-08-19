@@ -58,18 +58,15 @@ export const RestTimerOverlay = ({
 
   useEffect(() => {
     if (reducedMotion || !almostGo) {
-      // eslint-disable-next-line react-hooks/immutability -- SharedValue
       breathe.value = 1;
       return;
     }
-    // eslint-disable-next-line react-hooks/immutability -- SharedValue
     breathe.value = withRepeat(
       withSequence(withTiming(1.03, { duration: BREATHE_MS }), withTiming(1, { duration: BREATHE_MS })),
       -1,
       false,
     );
     return () => {
-      // eslint-disable-next-line react-hooks/immutability -- SharedValue
       breathe.value = 1;
     };
   }, [almostGo, reducedMotion, breathe]);
