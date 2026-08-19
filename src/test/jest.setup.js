@@ -1,3 +1,4 @@
+/* eslint-env jest */
 /* Global Jest setup: silence noisy RN warnings and provide stable mocks for
  * native modules so every test runs headlessly in Node/CI. */
 
