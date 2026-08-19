@@ -1,62 +1,91 @@
-# Welcome to your Expo app 👋
+# Apex — science-based strength training
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A modern Expo (React Native) app that makes progressive overload frictionless: one-handed set
+logging built for the gym floor, evidence-based next-session suggestions you can actually trust,
+a comprehensive educational exercise library, and history that shows real strength trends.
+**Offline-first everywhere** — every core path works with zero signal.
 
-> This project uses [Bun](https://bun.com/docs) for every aspect — package management, running
-> scripts, and the JavaScript runtime. Use `bun`, `bunx`, and `bun run` (not `npm`/`npx`/`node`)
-> for day-to-day work. Node.js LTS must still be installed, because Expo's `bun create expo` and
-> `bun expo prebuild` shell out to `npm pack` to fetch templates and run autolinking scripts.
-> Install Bun with `curl -fsSL https://bun.com/install | bash` if you don't have it.
+> Runtime & tooling: this project uses [Bun](https://bun.com) for everything (`bun`, `bunx`,
+> `bun run`). Node.js LTS must be installed (Expo tooling shells out to it).
 
-## Get started
-
-1. Install dependencies
-
-   ```bash
-   bun install
-   ```
-
-2. Start the app
-
-   ```bash
-   bunx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Quick start
 
 ```bash
-bun run reset-project
+bun install
+bunx expo start          # press w for web, or scan the QR in Expo Go
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+No configuration needed: without credentials the app runs in **local mode** — all data
+on-device, every feature except cross-device sync. To enable accounts + sync, copy
+`.env.example` to `.env` and set the Clerk + Supabase keys (see below).
 
-### Other setup steps
+## The product in 30 seconds
 
-- To set up ESLint for linting, run `bun run lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+- **Onboarding** captures goal, experience, equipment, injuries, units (kg/lb), session length.
+- **Generate a workout** (goal-specific schemes, your equipment, volume landmarks, your time
+  budget, light/moderate/heavy undulation) or **build one manually** from the library.
+- **Live Workout Player**: pre-filled large-button set logging (weight / reps / RPE or RIR),
+  "Last time: 80 kg × 8 @ RPE 7" cues on every set, adjustable rest timer with haptics +
+  notification, one-tap warm-up/failure/drop-set tags, keep-awake, ≥ 56–64 pt touch targets.
+- **Progressive-overload engine** suggests add-load / add-reps / hold / reduce / deload — with a
+  plain-language rationale and confidence level, never auto-applied. Epley estimated-1RM trends,
+  PR detection with a light celebration.
+- **Exercise library**: 58 curated exercises (all 10 movement patterns) with instructions and
+  muscle-target diagrams, ranked search, multi-filters, favorites, custom exercises.
 
-## Learn more
+## Scripts
 
-To learn more about developing your project with Expo, look at the following resources:
+| Command | Purpose |
+|---|---|
+| `bun run start` / `bun run web` | Metro dev server / web preview |
+| `bun run test` | Jest — 121 unit + component tests (headless) |
+| `bun run test:coverage` | With coverage |
+| `bun run typecheck` | Strict TypeScript |
+| `bun run lint` | ESLint |
+| `bun run export:web` | Static web export to `dist/` |
+| `bun run test:e2e` | Playwright e2e vs the export (`bunx playwright install chromium` once) |
+| `bun run verify` | typecheck + lint + test |
+| `bun run scripts/generate-seed-sql.ts` | Regenerate `supabase/seed.sql` from the TS library |
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Everything runs headlessly in cloud CI (`.github/workflows/ci.yml`) — no device, simulator, or
+Watch hardware required. Component gallery (Storybook equivalent): run the app → Profile →
+"Component gallery", or `/dev/gallery` on web.
 
-## Join the community
+## Backend setup (optional — enables accounts + sync)
 
-Join our community of developers creating universal apps.
+1. **Clerk:** create an app, put the publishable key in `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY`.
+2. **Supabase:** create a project; enable the **Clerk third-party auth** integration (so RLS can
+   key off `auth.jwt() ->> 'sub'`); run `supabase/migrations/0001_init.sql`, then
+   `supabase/seed.sql`; set `EXPO_PUBLIC_SUPABASE_URL` + `EXPO_PUBLIC_SUPABASE_ANON_KEY`.
+3. Restart the dev server. Writes now sync in the background (outbox, last-write-wins); the
+   Profile tab shows sync status.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Documentation
+
+| Doc | Contents |
+|---|---|
+| `docs/PRD.md` | Product requirements, personas, success criteria, phased scope |
+| `docs/design/intent-strategy.md` | Design with Intent context, strategy, measurement |
+| `docs/design/intent-audit.md` | Anti-pattern audit + accessibility review |
+| `docs/design/design-system.md` | Tokens, component specs (SetLogger et al.), voice |
+| `docs/design/user-flows.md` | IA, journeys, empty/error-state inventory |
+| `docs/design/animation-style-guide.md` | Lottie exercise-animation style contract + pipeline |
+| `docs/science.md` | The training science behind every coded rule |
+| `docs/architecture.md` | Layers, offline sync design, auth, key decisions |
+| `docs/testing.md` | Test layers, mocks/simulation strategy, CI |
+| `docs/roadmap.md` | Phase 2 (Health/analytics) & Phase 3 (Watch rep detection) |
+| `docs/agent-mapping.md` | How the brief's named agents/skills were mapped |
+
+## Project structure
+
+```
+src/domain/    pure-TS training logic (progression, generation, 1RM, stats, search) — no RN imports
+src/data/      offline-first storage, outbox sync engine, Supabase remote, seed library
+src/state/     Zustand live-session store, TanStack Query hooks, providers
+src/auth/      Clerk + local-mode auth
+src/ui/        design tokens + components (SetLogger, RestTimer, charts, muscle diagram…)
+src/app/       Expo Router screens
+supabase/      schema + RLS + sync RPC/views + generated seed
+e2e/           Playwright critical-path specs
+docs/          full documentation set
+```
