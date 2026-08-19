@@ -6,7 +6,9 @@ Read the exact versioned docs at https://docs.expo.dev/versions/v57.0.0/ before 
 
 This repo is an Expo (SDK 57) app configured for Cursor Cloud Agents in `.cursor/environment.json`.
 **Bun is the package manager and JavaScript runtime for every aspect of this project — use `bun`,
-`bunx`, and `bun run`, not `npm`/`npx`/`node`.**
+`bunx`, and `bun run` (not `npm`/`npx`/`node`) for day-to-day work.** Node.js LTS must still be
+installed (the Cursor default image provides it): Expo's `bun create expo` and `bun expo prebuild`
+shell out to `npm pack` to fetch templates and run React Native autolinking scripts.
 
 - Base image: Cursor default (Linux x86_64). `install` self-installs Bun via `https://bun.com/install`
   if it is not already present, so no custom Dockerfile is required.

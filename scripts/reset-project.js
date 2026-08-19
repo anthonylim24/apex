@@ -50,12 +50,24 @@ const rl = readline.createInterface({
 const moveDirectories = async (userInput) => {
   try {
     if (userInput === "y") {
-      // Create the app-example directory
+      // Preflight: fail before moving anything if a destination already exists,
+      // so a later conflict can't leave the project in a half-moved state.
+      for (const dir of oldDirs) {
+        const oldDirPath = path.join(root, dir);
+        const newDirPath = path.join(root, exampleDir, dir);
+        if (fs.existsSync(oldDirPath) && fs.existsSync(newDirPath)) {
+          throw new Error(
+            `/${exampleDir}/${dir} already exists. Remove it and re-run to avoid a partial move.`
+          );
+        }
+      }
+
+      // Create the example directory
       await fs.promises.mkdir(exampleDirPath, { recursive: true });
       console.log(`📁 /${exampleDir} directory created.`);
     }
 
-    // Move old directories to new app-example directory or delete them
+    // Move old directories to new example directory or delete them
     for (const dir of oldDirs) {
       const oldDirPath = path.join(root, dir);
       if (fs.existsSync(oldDirPath)) {
@@ -89,13 +101,14 @@ const moveDirectories = async (userInput) => {
 
     console.log("\n✅ Project reset complete. Next steps:");
     console.log(
-      `1. Run \`npx expo start\` to start a development server.\n2. Edit src/app/index.tsx to edit the main screen.\n3. Put all your application code in /src, only screens and layout files should be in /src/app.${
+      `1. Run \`bunx expo start\` to start a development server.\n2. Edit src/app/index.tsx to edit the main screen.\n3. Put all your application code in /src, only screens and layout files should be in /src/app.${
         userInput === "y"
           ? `\n4. Delete the /${exampleDir} directory when you're done referencing it.`
           : ""
       }`
     );
   } catch (error) {
+    process.exitCode = 1;
     console.error(`❌ Error during script execution: ${error.message}`);
   }
 };

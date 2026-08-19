@@ -3,7 +3,9 @@
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
 > This project uses [Bun](https://bun.com/docs) for every aspect — package management, running
-> scripts, and the JavaScript runtime. Use `bun`, `bunx`, and `bun run` (not `npm`/`npx`/`node`).
+> scripts, and the JavaScript runtime. Use `bun`, `bunx`, and `bun run` (not `npm`/`npx`/`node`)
+> for day-to-day work. Node.js LTS must still be installed, because Expo's `bun create expo` and
+> `bun expo prebuild` shell out to `npm pack` to fetch templates and run autolinking scripts.
 > Install Bun with `curl -fsSL https://bun.com/install | bash` if you don't have it.
 
 ## Get started
@@ -27,7 +29,7 @@ In the output, you'll find options to open the app in a
 - [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
 ## Get a fresh project
 
@@ -37,7 +39,7 @@ When you're ready, run:
 bun run reset-project
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
 
 ### Other setup steps
 
