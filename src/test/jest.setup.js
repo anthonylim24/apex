@@ -43,6 +43,12 @@ jest.mock('react-native-reanimated', () => {
   };
 });
 
+jest.mock('expo-font', () => ({
+  useFonts: () => [true, null],
+  isLoaded: () => true,
+  loadAsync: jest.fn().mockResolvedValue(undefined),
+}));
+
 jest.mock('expo-keep-awake', () => ({
   useKeepAwake: jest.fn(),
   activateKeepAwakeAsync: jest.fn().mockResolvedValue(undefined),

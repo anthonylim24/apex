@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import {
   ActivityIndicator,
@@ -11,9 +12,17 @@ import {
   type TextStyle,
   type ViewStyle,
 } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Line, Rect as SvgRect } from 'react-native-svg';
 import { colors, radius, spacing, touch, type } from '../theme';
+
+const PRESS_SPRING = { damping: 18, stiffness: 420, mass: 0.35 } as const;
 
 type TypeToken = keyof typeof type;
 
@@ -63,32 +72,51 @@ export const Button = ({
   accessibilityHint?: string;
 }) => {
   const palette = buttonColors[variant];
+  const reducedMotion = useReducedMotion();
+  const scale = useSharedValue(1);
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+  const flatStyle = StyleSheet.flatten(style);
+  const sprungMinHeight = flatStyle && 'minHeight' in flatStyle ? flatStyle.minHeight : undefined;
+
+  const springTo = (next: number) => {
+    if (reducedMotion) return;
+    // Reanimated shared values are mutated via `.value`; that is the API.
+    // eslint-disable-next-line react-hooks/immutability -- SharedValue
+    scale.value = withSpring(next, PRESS_SPRING);
+  };
+
   return (
-    <Pressable
-      testID={testID}
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityHint={accessibilityHint}
-      accessibilityState={{ disabled: disabled || loading }}
-      disabled={disabled || loading}
-      onPress={onPress}
-      hitSlop={touch.hitSlop}
-      style={({ pressed }) => [
-        styles.button,
-        compact && styles.buttonCompact,
-        { backgroundColor: pressed ? palette.pressed : palette.bg },
-        (disabled || loading) && styles.buttonDisabled,
-        style,
-      ]}
-    >
-      {loading ? (
-        <ActivityIndicator color={palette.text} />
-      ) : (
-        <AppText variant="bodyBold" color={palette.text}>
-          {label}
-        </AppText>
-      )}
-    </Pressable>
+    <Animated.View style={[animatedStyle, style]}>
+      <Pressable
+        testID={testID}
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        accessibilityHint={accessibilityHint}
+        accessibilityState={{ disabled: disabled || loading }}
+        disabled={disabled || loading}
+        onPress={onPress}
+        onPressIn={() => springTo(0.97)}
+        onPressOut={() => springTo(1)}
+        hitSlop={touch.hitSlop}
+        style={({ pressed }) => [
+          styles.button,
+          compact && styles.buttonCompact,
+          { backgroundColor: pressed ? palette.pressed : palette.bg },
+          (disabled || loading) && styles.buttonDisabled,
+          sprungMinHeight != null ? { minHeight: sprungMinHeight } : null,
+        ]}
+      >
+        {loading ? (
+          <ActivityIndicator color={palette.text} />
+        ) : (
+          <AppText variant="bodyBold" color={palette.text}>
+            {label}
+          </AppText>
+        )}
+      </Pressable>
+    </Animated.View>
   );
 };
 
@@ -137,22 +165,35 @@ export const Screen = ({
   const padding = padded
     ? { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl }
     : undefined;
+  const ambientLight = (
+    <LinearGradient
+      colors={[colors.bgTop, colors.bg]}
+      start={{ x: 0.5, y: 0 }}
+      end={{ x: 0.5, y: 1 }}
+      style={styles.screenLight}
+      pointerEvents="none"
+    />
+  );
   if (!scroll) {
     return (
       <View testID={testID} style={[styles.screen, { paddingTop: insets.top }, padding]}>
+        {ambientLight}
         {children}
       </View>
     );
   }
   return (
-    <ScrollView
-      testID={testID}
-      style={[styles.screen, { paddingTop: insets.top }]}
-      contentContainerStyle={[padding, { paddingBottom: spacing.xxxl + insets.bottom }]}
-      keyboardShouldPersistTaps="handled"
-    >
-      {children}
-    </ScrollView>
+    <View style={styles.screen}>
+      {ambientLight}
+      <ScrollView
+        testID={testID}
+        style={{ flex: 1, paddingTop: insets.top }}
+        contentContainerStyle={[padding, { paddingBottom: spacing.xxxl + insets.bottom }]}
+        keyboardShouldPersistTaps="handled"
+      >
+        {children}
+      </ScrollView>
+    </View>
   );
 };
 
@@ -281,8 +322,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.surfaceOutline,
     padding: spacing.lg,
+  },
+  screenLight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 260,
   },
   badge: {
     borderRadius: radius.full,

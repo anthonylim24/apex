@@ -17,6 +17,10 @@ export const colors = {
   surfaceRaised: '#1C1F26',
   surfacePressed: '#242833',
   border: '#2A2E38',
+  /** Subtle top-light for screen gradients — ambient, not a banner. */
+  bgTop: '#10131B',
+  /** Hairline top-edge highlight for cards (border, never with a shadow). */
+  surfaceOutline: 'rgba(244, 246, 248, 0.06)',
 
   // Text (contrast vs bg: 15.9:1, 7.6:1, 4.9:1)
   text: '#F4F6F8',
@@ -57,16 +61,37 @@ export const radius = {
   full: 999,
 } as const;
 
+/** Poster display face — loaded at the root via `@expo-google-fonts/anton`. */
+export const fonts = {
+  display: 'Anton_400Regular',
+} as const;
+
 export const type = {
   /** Hero numerals in the Workout Player (weight/reps/timer). */
-  displayXl: { fontSize: 56, fontWeight: '800', letterSpacing: -1 },
-  display: { fontSize: 40, fontWeight: '800', letterSpacing: -0.5 },
-  title: { fontSize: 28, fontWeight: '700' },
-  heading: { fontSize: 20, fontWeight: '700' },
+  displayXl: {
+    fontSize: 68,
+    fontFamily: fonts.display,
+    fontWeight: '400',
+    letterSpacing: 0.5,
+  },
+  display: {
+    fontSize: 48,
+    fontFamily: fonts.display,
+    fontWeight: '400',
+    letterSpacing: 0.5,
+  },
+  title: {
+    fontSize: 32,
+    fontFamily: fonts.display,
+    fontWeight: '400',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  heading: { fontSize: 20, fontWeight: '800' },
   body: { fontSize: 16, fontWeight: '400' },
   bodyBold: { fontSize: 16, fontWeight: '700' },
   caption: { fontSize: 13, fontWeight: '500' },
-  label: { fontSize: 12, fontWeight: '600', letterSpacing: 0.6, textTransform: 'uppercase' },
+  label: { fontSize: 12, fontWeight: '600', letterSpacing: 1.2, textTransform: 'uppercase' },
 } as const;
 
 /** Minimum touch target sizes (pt). WCAG 2.2 target-size plus gym margin. */

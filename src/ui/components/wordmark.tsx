@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Circle, Polyline } from 'react-native-svg';
-import { colors, spacing } from '../theme';
+import { colors, fonts, spacing } from '../theme';
 import { AppText } from './primitives';
 
 /** The Apex mark: a rising trend line finishing as a loaded bar —
@@ -31,5 +31,11 @@ export const ApexWordmark = ({ testID = 'apex-wordmark' }: { testID?: string }) 
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  word: { letterSpacing: 4, color: colors.text },
+  word: {
+    fontFamily: fonts.display,
+    fontSize: 24,
+    fontWeight: '400',
+    letterSpacing: 6,
+    color: colors.text,
+  },
 });

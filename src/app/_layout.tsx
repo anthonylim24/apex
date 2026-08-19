@@ -1,3 +1,4 @@
+import { Anton_400Regular, useFonts } from '@expo-google-fonts/anton';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
@@ -8,6 +9,11 @@ import { AppProviders } from '@/state/appContext';
 import { colors } from '@/ui/theme';
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({ Anton_400Regular });
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
