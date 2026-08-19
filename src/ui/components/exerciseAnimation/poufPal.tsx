@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Image, StyleSheet, View, type ImageSourcePropType } from 'react-native';
+import React, { createElement, useEffect } from 'react';
+import { Image, Platform, StyleSheet, View, type ImageSourcePropType } from 'react-native';
 import Animated, {
   Easing,
   interpolate,
@@ -25,6 +25,19 @@ const PAL: Record<MovementPattern, ImageSourcePropType> = {
   isolation: require('../../../../assets/pouf-pals/curl.jpg'),
   core: require('../../../../assets/pouf-pals/plank.jpg'),
   carry: require('../../../../assets/pouf-pals/carry.jpg'),
+};
+
+const VIDEO: Record<MovementPattern, unknown> = {
+  squat: require('../../../../assets/pouf-pals/videos/squat.mp4'),
+  hinge: require('../../../../assets/pouf-pals/videos/hinge.mp4'),
+  lunge: require('../../../../assets/pouf-pals/videos/lunge.mp4'),
+  horizontal_push: require('../../../../assets/pouf-pals/videos/bench.mp4'),
+  horizontal_pull: require('../../../../assets/pouf-pals/videos/row.mp4'),
+  vertical_push: require('../../../../assets/pouf-pals/videos/press.mp4'),
+  vertical_pull: require('../../../../assets/pouf-pals/videos/pullup.mp4'),
+  isolation: require('../../../../assets/pouf-pals/videos/curl.mp4'),
+  core: require('../../../../assets/pouf-pals/videos/plank.mp4'),
+  carry: require('../../../../assets/pouf-pals/videos/carry.mp4'),
 };
 
 const FRAME_TONE: Record<MovementPattern, Tone> = {
@@ -57,10 +70,42 @@ const MOTION: Record<MovementPattern, Motion> = {
   carry: { sx: 1.03, sy: 0.97, dy: 3, rot: 5 },
 };
 
+const uriFrom = (mod: unknown): string | undefined => {
+  if (typeof mod === 'string' && mod.length > 0) return mod;
+  if (typeof mod === 'number') return undefined;
+  if (mod && typeof mod === 'object') {
+    const rec = mod as { uri?: string; default?: unknown };
+    if (typeof rec.uri === 'string') return rec.uri;
+    if (rec.default !== undefined) return uriFrom(rec.default);
+  }
+  return undefined;
+};
+
+const PalClip = ({
+  pattern,
+  reducedMotion,
+}: {
+  pattern: MovementPattern;
+  reducedMotion: boolean | null;
+}) => {
+  const still = <Image source={PAL[pattern]} style={styles.image} resizeMode="cover" />;
+  if (reducedMotion || Platform.OS !== 'web') return still;
+  const src = uriFrom(VIDEO[pattern]);
+  if (!src) return still;
+  return createElement('video', {
+    src,
+    autoPlay: true,
+    loop: true,
+    muted: true,
+    playsInline: true,
+    style: { width: '100%', height: '100%', objectFit: 'cover' },
+  });
+};
+
 /**
- * Pouf Pal demo — clay still plus a 2.4s character loop:
- * anticipate → effort squash → hold → stretch home → settle wobble.
- * A ground shadow fattens on contact. Reduce-motion holds the still.
+ * Pouf Pal demo — generated clay clip when motion is allowed (web),
+ * otherwise the still with a 2.4s character loop. Reduce-motion holds
+ * the still. Native keeps the still until expo-video is wired.
  */
 export const PoufPal = ({
   pattern,
@@ -74,9 +119,10 @@ export const PoufPal = ({
   const sway = useSharedValue(0);
   const motion = MOTION[pattern];
   const frameTone = tones[FRAME_TONE[pattern]];
+  const playVideo = !reducedMotion && Platform.OS === 'web' && Boolean(uriFrom(VIDEO[pattern]));
 
   useEffect(() => {
-    if (reducedMotion) return;
+    if (reducedMotion || playVideo) return;
     t.value = withRepeat(
       withTiming(1, { duration: LOOP_MS, easing: Easing.inOut(Easing.sin) }),
       -1,
@@ -94,9 +140,10 @@ export const PoufPal = ({
       t.value = 0;
       sway.value = 0;
     };
-  }, [reducedMotion, t, sway]);
+  }, [reducedMotion, playVideo, t, sway]);
 
   const animatedStyle = useAnimatedStyle(() => {
+    if (playVideo) return {};
     const p = t.value;
     const anticipate = interpolate(p, [0, 0.12, 0.18, 1], [0, 1, 0, 0]);
     const effort = interpolate(p, [0, 0.16, 0.48, 0.62, 1], [0, 0, 1, 1, 0]);
@@ -113,14 +160,6 @@ export const PoufPal = ({
     };
   });
 
-  const shadowStyle = useAnimatedStyle(() => {
-    const contact = interpolate(t.value, [0, 0.2, 0.48, 0.7, 1], [0.35, 0.45, 0.85, 0.4, 0.35]);
-    return {
-      opacity: 0.28 + contact * 0.22,
-      transform: [{ scaleX: 0.72 + contact * 0.28 }, { scaleY: 1 }],
-    };
-  });
-
   return (
     <View
       style={[
@@ -129,10 +168,12 @@ export const PoufPal = ({
         { width: size, height: size, borderColor: frameTone },
       ]}
     >
-      <Animated.View style={[styles.shadow, shadowStyle]} />
-      <Animated.View style={[styles.stage, animatedStyle]}>
-        <Image source={PAL[pattern]} style={styles.image} resizeMode="cover" />
-      </Animated.View>
+      <View style={styles.clip}>
+        <View style={styles.shine} pointerEvents="none" />
+        <Animated.View style={[styles.stage, animatedStyle]}>
+          <PalClip pattern={pattern} reducedMotion={reducedMotion} />
+        </Animated.View>
+      </View>
     </View>
   );
 };
@@ -141,10 +182,27 @@ const styles = StyleSheet.create({
   frame: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
-    overflow: 'hidden',
     borderWidth: 3,
     alignItems: 'center',
     justifyContent: 'flex-end',
+  },
+  clip: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    borderRadius: radius.lg - 3,
+    overflow: 'hidden',
+  },
+  shine: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 8,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    zIndex: 2,
   },
   stage: {
     position: 'absolute',
@@ -154,13 +212,4 @@ const styles = StyleSheet.create({
     left: 0,
   },
   image: { width: '100%', height: '100%' },
-  shadow: {
-    position: 'absolute',
-    bottom: 10,
-    width: '46%',
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: '#000000',
-    zIndex: 1,
-  },
 });

@@ -6,6 +6,9 @@ module.exports = {
   transformIgnorePatterns: [
     'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg|@supabase/.*|@clerk/.*|zustand|@tanstack/.*)',
   ],
+  moduleNameMapper: {
+    '\\.(mp4|webm)$': '<rootDir>/src/test/fileMock.js',
+  },
   setupFiles: ['<rootDir>/src/test/jest.setup.js'],
   collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/__tests__/**', '!src/test/**'],
 };
