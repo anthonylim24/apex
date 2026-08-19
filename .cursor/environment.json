@@ -1,11 +1,17 @@
 {
   "name": "apex (Expo SDK 57 · Bun)",
-  "install": "command -v bun >/dev/null 2>&1 || curl -fsSL https://bun.com/install | bash\nexport BUN_INSTALL=\"$HOME/.bun\"\nexport PATH=\"$BUN_INSTALL/bin:$PATH\"\nbun install --frozen-lockfile",
+  "install": "command -v unzip >/dev/null 2>&1 || (sudo apt-get update -qq && sudo apt-get install -y unzip)\ncommand -v bun >/dev/null 2>&1 || curl -fsSL https://bun.com/install | bash\nexport BUN_INSTALL=\"$HOME/.bun\"\nexport PATH=\"$BUN_INSTALL/bin:$PATH\"\necho 'export BUN_INSTALL=\"$HOME/.bun\"' >> ~/.bashrc\necho 'export PATH=\"$BUN_INSTALL/bin:$PATH\"' >> ~/.bashrc\nbun install --frozen-lockfile",
   "terminals": [
     {
       "name": "expo",
-      "command": "export PATH=\"$HOME/.bun/bin:$PATH\"; bunx expo start --port 8081"
+      "command": "export PATH=\"$HOME/.bun/bin:$PATH\"; bunx expo start --port 8081",
+      "description": "Expo Metro bundler on port 8081"
     }
   ],
-  "ports": [8081]
+  "ports": [
+    {
+      "name": "expo",
+      "port": 8081
+    }
+  ]
 }
