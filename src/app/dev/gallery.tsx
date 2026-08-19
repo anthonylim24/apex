@@ -24,6 +24,7 @@ import { RestTimerOverlay } from '@/ui/components/restTimer';
 import { RpePicker } from '@/ui/components/rpePicker';
 import { SetLogger } from '@/ui/components/setLogger';
 import { Stepper } from '@/ui/components/stepper';
+import { clay } from '@/ui/clay';
 import { colors, spacing } from '@/ui/theme';
 
 /**
@@ -77,7 +78,12 @@ export default function Gallery() {
             onChange={setDraft}
             onLog={() => setLoggedCount((n) => n + 1)}
           />
-          <AppText variant="caption" color={colors.success} testID="gallery-logged-count">
+          <AppText
+            variant="caption"
+            color={colors.success}
+            testID="gallery-logged-count"
+            style={styles.loggedCount}
+          >
             Logged sets in this demo: {loggedCount}
           </AppText>
         </Card>
@@ -321,6 +327,7 @@ const styles = StyleSheet.create({
   header: { paddingVertical: spacing.lg, gap: spacing.xs },
   section: { marginBottom: spacing.xl },
   sectionTitle: { marginBottom: spacing.md },
+  loggedCount: { marginTop: clay.gutter },
   miscCard: { gap: spacing.md },
   badgeRow: { flexDirection: 'row', gap: spacing.sm },
   animGrid: {
