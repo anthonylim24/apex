@@ -114,6 +114,13 @@ export default function WorkoutPlayer() {
     store.getState().selectExercise(index, lastPerformance(priorSessions, target.exerciseId));
   };
 
+  /** Pop back to the original tabs entry instead of stacking a second
+   * tabs navigator (duplicate mounted screens otherwise). */
+  const exitTo = (path: '/(tabs)' | '/(tabs)/history'): void => {
+    if (router.canDismiss()) router.dismissAll();
+    router.replace(path);
+  };
+
   const handleFinish = (): void => {
     const completed = store.getState().finish(priorSessions);
     if (completed) saveSession.mutate(completed);
@@ -121,7 +128,7 @@ export default function WorkoutPlayer() {
     setFinished(true);
     if (store.getState().pendingPrs.length === 0) {
       store.getState().reset();
-      router.replace('/(tabs)/history');
+      exitTo('/(tabs)/history');
     }
   };
 
@@ -129,7 +136,7 @@ export default function WorkoutPlayer() {
     const discarded = store.getState().discard();
     if (discarded) saveSession.mutate(discarded);
     void cancelRestEndNotification();
-    router.replace('/(tabs)');
+    exitTo('/(tabs)');
   };
 
   return (
@@ -241,7 +248,7 @@ export default function WorkoutPlayer() {
           onDismiss={() => {
             store.getState().dismissPrs();
             store.getState().reset();
-            router.replace('/(tabs)/history');
+            exitTo('/(tabs)/history');
           }}
         />
       ) : null}
