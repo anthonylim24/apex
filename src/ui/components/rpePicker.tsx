@@ -10,9 +10,9 @@ const RPE_VALUES = [6, 7, 7.5, 8, 8.5, 9, 10] as const;
 const RIR_VALUES = [5, 4, 3, 2, 1, 0] as const;
 
 /**
- * Effort as a clay stepper (same language as weight/reps), not a chip row.
- * Optional — step off the low end, or tap the selected tick, to clear.
- * Tick marks keep the existing testIDs so e2e/Jest stay one-tap.
+ * Effort as a clay stepper-slider — same 64pt ± language as weight/reps,
+ * with a recessed pouf track in the middle. Optional: step off the low
+ * end, or tap the selected tick, to clear. Tick testIDs stay one-tap.
  */
 export const RpePicker = ({
   mode,
@@ -34,6 +34,8 @@ export const RpePicker = ({
         ? rpeLabel(value)
         : rpeLabel(10 - value);
   const fillPct = selectedIndex < 0 ? 0 : (selectedIndex / (values.length - 1)) * 100;
+  const readout =
+    value === undefined ? '—' : value % 1 === 0 ? String(value) : value.toFixed(1);
 
   const commit = (next: number | undefined): void => {
     Haptics.selectionAsync();
@@ -54,15 +56,20 @@ export const RpePicker = ({
     commit(values[next]);
   };
 
-  const pickTick = (next: number): void => {
-    commit(value === next ? undefined : next);
-  };
-
   return (
     <View style={styles.container} testID={testID}>
-      <AppText variant="label" color={colors.textTertiary}>
-        {mode === 'rpe' ? 'Effort (RPE)' : 'Reps in reserve'}
-      </AppText>
+      <View style={styles.heading}>
+        <AppText variant="label" color={colors.textTertiary}>
+          {mode === 'rpe' ? 'Effort (RPE)' : 'Reps in reserve'}
+        </AppText>
+        <AppText
+          variant="heading"
+          color={value === undefined ? colors.textTertiary : colors.mint}
+          testID={testID ? `${testID}-value` : undefined}
+        >
+          {readout}
+        </AppText>
+      </View>
       <View style={styles.row}>
         <Pressable
           testID={testID ? `${testID}-decrement` : undefined}
@@ -79,18 +86,41 @@ export const RpePicker = ({
             −
           </AppText>
         </Pressable>
-        <View
-          style={styles.valueBox}
-          accessibilityRole="text"
-          accessibilityLabel={`${mode.toUpperCase()}: ${value ?? 'not set'}`}
-        >
-          <AppText
-            variant="display"
-            color={value === undefined ? colors.textTertiary : colors.mint}
-            testID={testID ? `${testID}-value` : undefined}
-          >
-            {value === undefined ? '—' : value % 1 === 0 ? String(value) : value.toFixed(1)}
-          </AppText>
+        <View style={[styles.track, clay.field]}>
+          <View style={[styles.fill, { width: `${fillPct}%` }]} />
+          <View
+            pointerEvents="none"
+            style={[
+              styles.thumb,
+              clay.control,
+              { left: `${fillPct}%`, opacity: selectedIndex < 0 ? 0 : 1 },
+            ]}
+          />
+          <View style={styles.ticks}>
+            {values.map((v) => {
+              const selected = value === v;
+              return (
+                <Pressable
+                  key={v}
+                  testID={testID ? `${testID}-${v}` : undefined}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${mode.toUpperCase()} ${v}`}
+                  accessibilityState={{ selected }}
+                  onPress={() => commit(value === v ? undefined : v)}
+                  hitSlop={touch.hitSlop}
+                  style={styles.tick}
+                >
+                  <AppText
+                    variant="caption"
+                    color={selected ? colors.onAccent : colors.textSecondary}
+                    style={selected ? styles.tickOn : undefined}
+                  >
+                    {v % 1 === 0 ? String(v) : v.toFixed(1)}
+                  </AppText>
+                </Pressable>
+              );
+            })}
+          </View>
         </View>
         <Pressable
           testID={testID ? `${testID}-increment` : undefined}
@@ -108,42 +138,6 @@ export const RpePicker = ({
           </AppText>
         </Pressable>
       </View>
-      <View style={[styles.track, clay.field]}>
-        <View style={[styles.fill, { width: `${fillPct}%` }]} />
-        <View
-          pointerEvents="none"
-          style={[
-            styles.thumb,
-            clay.control,
-            { left: `${fillPct}%`, opacity: selectedIndex < 0 ? 0 : 1 },
-          ]}
-        />
-        <View style={styles.ticks}>
-          {values.map((v) => {
-            const selected = value === v;
-            return (
-              <Pressable
-                key={v}
-                testID={testID ? `${testID}-${v}` : undefined}
-                accessibilityRole="button"
-                accessibilityLabel={`${mode.toUpperCase()} ${v}`}
-                accessibilityState={{ selected }}
-                onPress={() => pickTick(v)}
-                hitSlop={touch.hitSlop}
-                style={styles.tick}
-              >
-                <AppText
-                  variant="caption"
-                  color={selected ? colors.onAccent : colors.textSecondary}
-                  style={selected ? styles.tickOn : undefined}
-                >
-                  {v % 1 === 0 ? String(v) : v.toFixed(1)}
-                </AppText>
-              </Pressable>
-            );
-          })}
-        </View>
-      </View>
       <AppText variant="caption" color={colors.textTertiary}>
         {helper}
       </AppText>
@@ -152,7 +146,12 @@ export const RpePicker = ({
 };
 
 const styles = StyleSheet.create({
-  container: { gap: spacing.sm },
+  container: { gap: spacing.xs },
+  heading: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+  },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   stepButton: {
     width: touch.setLogger,
@@ -164,10 +163,10 @@ const styles = StyleSheet.create({
   },
   stepButtonRaised: clay.control,
   stepButtonPressed: { ...clay.controlActive, backgroundColor: colors.pink },
-  valueBox: { flex: 1, alignItems: 'center', minHeight: touch.setLogger, justifyContent: 'center' },
   track: {
+    flex: 1,
     position: 'relative',
-    minHeight: 44,
+    minHeight: touch.setLogger,
     borderRadius: radius.full,
     backgroundColor: colors.surfacePressed,
     justifyContent: 'center',
@@ -196,7 +195,7 @@ const styles = StyleSheet.create({
   },
   tick: {
     flex: 1,
-    minHeight: 44,
+    minHeight: touch.setLogger,
     alignItems: 'center',
     justifyContent: 'center',
   },

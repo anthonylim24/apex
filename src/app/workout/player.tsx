@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
     paddingHorizontal: spacing.lg,
   },
-  headerBlock: { marginBottom: spacing.md, gap: spacing.sm },
+  headerBlock: { marginBottom: spacing.md, gap: spacing.sm, zIndex: 2 },
   header: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
   },
   headerText: { flex: 1, gap: 2 },
   suggestion: { marginBottom: spacing.md },
-  body: { flex: 1, justifyContent: 'flex-end' },
+  body: { flex: 1, justifyContent: 'flex-end', overflow: 'hidden', zIndex: 0 },
   footer: {
     flexDirection: 'row',
     gap: spacing.sm,
