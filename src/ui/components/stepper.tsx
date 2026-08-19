@@ -8,6 +8,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
+import { clay } from '../clay';
 import { colors, radius, spacing, touch } from '../theme';
 import { AppText } from './primitives';
 
@@ -75,9 +76,12 @@ export const Stepper = ({
           accessibilityLabel={`Decrease ${label}`}
           onPress={() => adjust(-step)}
           hitSlop={touch.hitSlop}
-          style={({ pressed }) => [styles.stepButton, pressed && styles.stepButtonPressed]}
+          style={({ pressed }) => [
+            styles.stepButton,
+            pressed ? styles.stepButtonPressed : styles.stepButtonRaised,
+          ]}
         >
-          <AppText variant="title" color={colors.text}>
+          <AppText variant="title" color={colors.onAccent}>
             −
           </AppText>
         </Pressable>
@@ -99,9 +103,12 @@ export const Stepper = ({
           accessibilityLabel={`Increase ${label}`}
           onPress={() => adjust(step)}
           hitSlop={touch.hitSlop}
-          style={({ pressed }) => [styles.stepButton, pressed && styles.stepButtonPressed]}
+          style={({ pressed }) => [
+            styles.stepButton,
+            pressed ? styles.stepButtonPressed : styles.stepButtonRaised,
+          ]}
         >
-          <AppText variant="title" color={colors.text}>
+          <AppText variant="title" color={colors.onAccent}>
             +
           </AppText>
         </Pressable>
@@ -117,13 +124,12 @@ const styles = StyleSheet.create({
     width: touch.setLogger,
     height: touch.setLogger,
     borderRadius: radius.md,
-    backgroundColor: colors.surfaceRaised,
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: colors.purple,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stepButtonPressed: { backgroundColor: colors.surfacePressed },
+  stepButtonRaised: clay.control,
+  stepButtonPressed: { ...clay.controlActive, backgroundColor: colors.pink },
   valueBox: { flex: 1, alignItems: 'center', minHeight: touch.setLogger, justifyContent: 'center' },
   valuePop: { alignItems: 'center', justifyContent: 'center', width: '100%' },
 });

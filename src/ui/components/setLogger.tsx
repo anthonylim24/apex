@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import type { SetLog, Unit } from '../../domain/types';
 import { formatWeight, toDisplayWeight } from '../../domain/units';
+import { clay } from '../clay';
 import { colors, radius, spacing, touch } from '../theme';
 import { AppText, Button } from './primitives';
 import { RpePicker } from './rpePicker';
@@ -118,21 +119,21 @@ export const SetLogger = ({
         <TagToggle
           label="Warm-up"
           active={draft.isWarmup}
-          activeColor={colors.rest}
+          fill={colors.blue}
           onPress={() => toggle('isWarmup')}
           testID={`${testID}-tag-warmup`}
         />
         <TagToggle
           label="To failure"
           active={draft.isFailure}
-          activeColor={colors.warning}
+          fill={colors.orange}
           onPress={() => toggle('isFailure')}
           testID={`${testID}-tag-failure`}
         />
         <TagToggle
           label="Drop set"
           active={draft.isDropSet}
-          activeColor={colors.pr}
+          fill={colors.yellow}
           onPress={() => toggle('isDropSet')}
           testID={`${testID}-tag-dropset`}
         />
@@ -156,13 +157,13 @@ export const SetLogger = ({
 const TagToggle = ({
   label,
   active,
-  activeColor,
+  fill,
   onPress,
   testID,
 }: {
   label: string;
   active: boolean;
-  activeColor: string;
+  fill: string;
   onPress: () => void;
   testID?: string;
 }) => (
@@ -172,9 +173,13 @@ const TagToggle = ({
     accessibilityLabel={label}
     accessibilityState={{ checked: active }}
     onPress={onPress}
-    style={[styles.tag, active && { borderColor: activeColor, backgroundColor: colors.surfacePressed }]}
+    style={[
+      styles.tag,
+      active ? clay.control : clay.field,
+      { backgroundColor: active ? fill : colors.surface },
+    ]}
   >
-    <AppText variant="caption" color={active ? activeColor : colors.textSecondary}>
+    <AppText variant="caption" color={active ? colors.onAccent : colors.textSecondary}>
       {label}
     </AppText>
   </Pressable>
@@ -187,9 +192,7 @@ const styles = StyleSheet.create({
   tag: {
     flex: 1,
     minHeight: 56,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderRadius: radius.md,
     backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',

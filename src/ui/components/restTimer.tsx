@@ -58,6 +58,7 @@ export const RestTimerOverlay = ({
 
   useEffect(() => {
     if (reducedMotion || !almostGo) {
+      // eslint-disable-next-line react-hooks/immutability -- SharedValue
       breathe.value = 1;
       return;
     }
@@ -82,8 +83,8 @@ export const RestTimerOverlay = ({
         <Svg width={RING_SIZE} height={RING_SIZE}>
           <Defs>
             <LinearGradient id={RING_GRAD_ID} x1="0" y1="0" x2="1" y2="1">
-              <Stop offset="0" stopColor={almostGo ? colors.accent : colors.rest} />
-              <Stop offset="1" stopColor={colors.accent} />
+              <Stop offset="0" stopColor={almostGo ? colors.mint : colors.blue} />
+              <Stop offset="1" stopColor={almostGo ? colors.yellow : colors.mint} />
             </LinearGradient>
           </Defs>
           <Circle

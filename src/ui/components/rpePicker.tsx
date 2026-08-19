@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { rpeLabel } from '../../domain/effort';
+import { clay } from '../clay';
 import { colors, fonts, radius, spacing } from '../theme';
 import { AppText } from './primitives';
 
@@ -51,7 +52,7 @@ export const RpePicker = ({
                 Haptics.selectionAsync();
                 onChange(selected ? undefined : v);
               }}
-              style={[styles.option, selected && styles.optionSelected]}
+              style={[styles.option, selected ? [styles.optionSelected, clay.control] : clay.field]}
             >
               <AppText
                 variant="bodyBold"
@@ -84,7 +85,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  optionSelected: { backgroundColor: colors.accent, borderColor: colors.accent },
+  optionSelected: { backgroundColor: colors.mint, borderColor: colors.mint },
   optionNumeral: {
     fontFamily: fonts.display,
     fontWeight: '400',

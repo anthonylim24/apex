@@ -12,6 +12,7 @@ import Animated, {
 import * as Haptics from 'expo-haptics';
 import type { PersonalRecord, Unit } from '../../domain/types';
 import { formatWeight } from '../../domain/units';
+import { clay } from '../clay';
 import { colors, motion, radius, spacing } from '../theme';
 import { ConfettiBurst } from './confettiBurst';
 import { AppText, Button } from './primitives';
@@ -64,8 +65,8 @@ export const PrCelebration = ({
   return (
     <View style={styles.backdrop} testID={testID}>
       <ConfettiBurst />
-      <Animated.View style={[styles.card, animatedStyle]}>
-        <View style={styles.medal}>
+      <Animated.View style={[styles.card, clay.card, animatedStyle]}>
+        <View style={[styles.medal, clay.blob]}>
           <AppText variant="title" color={colors.textInverse}>
             PR
           </AppText>
@@ -103,9 +104,7 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: colors.surface,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.pr,
+    borderRadius: radius.lg,
     padding: spacing.xl,
     alignItems: 'center',
     gap: spacing.md,
@@ -115,7 +114,7 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: radius.full,
-    backgroundColor: colors.pr,
+    backgroundColor: colors.yellow,
     alignItems: 'center',
     justifyContent: 'center',
   },

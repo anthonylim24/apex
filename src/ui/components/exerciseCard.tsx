@@ -1,14 +1,15 @@
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import type { Exercise } from '../../domain/types';
-import { colors, radius, spacing, touch } from '../theme';
+import { clay } from '../clay';
+import { colors, radius, spacing, touch, type Tone } from '../theme';
 import { AppText, Badge } from './primitives';
 import { PoseGlyph } from './poseGlyph';
 
-const DIFFICULTY_COLORS: Record<Exercise['difficulty'], string> = {
-  beginner: colors.success,
-  intermediate: colors.warning,
-  advanced: colors.danger,
+const DIFFICULTY_TONE: Record<Exercise['difficulty'], Tone> = {
+  beginner: 'mint',
+  intermediate: 'yellow',
+  advanced: 'pink',
 };
 
 export const formatMuscle = (muscle: string): string =>
@@ -32,7 +33,7 @@ export const ExerciseCard = ({
     accessibilityRole="button"
     accessibilityLabel={`${exercise.name}. ${exercise.primaryMuscles.map(formatMuscle).join(', ')}. ${exercise.difficulty}.`}
     onPress={onPress}
-    style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+    style={({ pressed }) => [styles.card, clay.row, pressed && styles.cardPressed]}
   >
     <PoseGlyph pattern={exercise.movementPattern} equipment={exercise.equipment} size={48} decorative />
     <View style={styles.main}>
@@ -44,11 +45,7 @@ export const ExerciseCard = ({
         {exercise.primaryMuscles.map(formatMuscle).join(', ')} ·{' '}
         {exercise.equipment.map(formatMuscle).join(', ')}
       </AppText>
-      <Badge
-        label={exercise.difficulty}
-        color={DIFFICULTY_COLORS[exercise.difficulty]}
-        background={colors.surfaceRaised}
-      />
+      <Badge label={exercise.difficulty} tone={DIFFICULTY_TONE[exercise.difficulty]} />
     </View>
     {onToggleFavorite ? (
       <Pressable
@@ -73,9 +70,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.surfaceOutline,
+    borderRadius: radius.lg,
     padding: spacing.lg,
     minHeight: touch.min + 16,
     gap: spacing.md,

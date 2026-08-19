@@ -32,10 +32,10 @@ export const ApexWordmark = ({ testID = 'apex-wordmark' }: { testID?: string }) 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   word: {
-    fontFamily: fonts.display,
-    fontSize: 24,
-    fontWeight: '400',
-    letterSpacing: 6,
+    fontFamily: fonts.ui,
+    fontSize: 26,
+    fontWeight: '800',
+    letterSpacing: 3,
     color: colors.text,
   },
 });

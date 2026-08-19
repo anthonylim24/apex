@@ -1,7 +1,8 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   ActivityIndicator,
+  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -13,16 +14,21 @@ import {
   type ViewStyle,
 } from 'react-native';
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
+  withDelay,
+  withRepeat,
+  withSequence,
   withSpring,
+  withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Line, Rect as SvgRect } from 'react-native-svg';
-import { colors, radius, spacing, touch, type } from '../theme';
+import { clay } from '../clay';
+import { colors, radius, spacing, tones, touch, type, type Tone } from '../theme';
 
-const PRESS_SPRING = { damping: 18, stiffness: 420, mass: 0.35 } as const;
+const PRESS_SPRING = { damping: 16, stiffness: 380, mass: 0.4 } as const;
 
 type TypeToken = keyof typeof type;
 
@@ -43,11 +49,11 @@ export const AppText = ({
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
-const buttonColors: Record<ButtonVariant, { bg: string; pressed: string; text: string }> = {
-  primary: { bg: colors.accent, pressed: colors.accentPressed, text: colors.textInverse },
-  secondary: { bg: colors.surfaceRaised, pressed: colors.surfacePressed, text: colors.text },
-  ghost: { bg: 'transparent', pressed: colors.surface, text: colors.textSecondary },
-  danger: { bg: colors.dangerMuted, pressed: '#4D2A30', text: colors.danger },
+const buttonTone: Record<ButtonVariant, { bg: string; text: string }> = {
+  primary: { bg: colors.mint, text: colors.onAccent },
+  secondary: { bg: colors.purple, text: colors.onAccent },
+  ghost: { bg: 'transparent', text: colors.textSecondary },
+  danger: { bg: colors.pink, text: colors.onAccent },
 };
 
 export const Button = ({
@@ -71,21 +77,22 @@ export const Button = ({
   testID?: string;
   accessibilityHint?: string;
 }) => {
-  const palette = buttonColors[variant];
+  const palette = buttonTone[variant];
   const reducedMotion = useReducedMotion();
-  const scale = useSharedValue(1);
+  const sink = useSharedValue(0);
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
+    transform: [{ translateY: sink.value }],
   }));
   const flatStyle = StyleSheet.flatten(style);
   const sprungMinHeight = flatStyle && 'minHeight' in flatStyle ? flatStyle.minHeight : undefined;
 
   const springTo = (next: number) => {
     if (reducedMotion) return;
-    // Reanimated shared values are mutated via `.value`; that is the API.
     // eslint-disable-next-line react-hooks/immutability -- SharedValue
-    scale.value = withSpring(next, PRESS_SPRING);
+    sink.value = withSpring(next, PRESS_SPRING);
   };
+
+  const isQuiet = variant === 'ghost';
 
   return (
     <Animated.View style={[animatedStyle, style]}>
@@ -97,13 +104,15 @@ export const Button = ({
         accessibilityState={{ disabled: disabled || loading }}
         disabled={disabled || loading}
         onPress={onPress}
-        onPressIn={() => springTo(0.97)}
-        onPressOut={() => springTo(1)}
+        onPressIn={() => springTo(3)}
+        onPressOut={() => springTo(0)}
         hitSlop={touch.hitSlop}
         style={({ pressed }) => [
           styles.button,
           compact && styles.buttonCompact,
-          { backgroundColor: pressed ? palette.pressed : palette.bg },
+          isQuiet ? styles.buttonQuiet : clay.control,
+          { backgroundColor: isQuiet ? 'transparent' : palette.bg },
+          pressed && !isQuiet ? clay.controlActive : null,
           (disabled || loading) && styles.buttonDisabled,
           sprungMinHeight != null ? { minHeight: sprungMinHeight } : null,
         ]}
@@ -111,7 +120,7 @@ export const Button = ({
         {loading ? (
           <ActivityIndicator color={palette.text} />
         ) : (
-          <AppText variant="bodyBold" color={palette.text}>
+          <AppText variant="bodyBold" color={palette.text} style={styles.buttonLabel}>
             {label}
           </AppText>
         )}
@@ -129,22 +138,101 @@ export const Card = ({
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }) => (
-  <View testID={testID} style={[styles.card, style]}>
+  <View testID={testID} style={[styles.card, clay.card, style]}>
+    <View style={styles.cardLip} pointerEvents="none" />
     {children}
   </View>
 );
 
 export const Badge = ({
   label,
-  color = colors.textSecondary,
-  background = colors.surfaceRaised,
+  color,
+  background,
+  tone,
 }: {
   label: string;
   color?: string;
   background?: string;
+  tone?: Tone;
+}) => {
+  const bg = tone ? tones[tone] : (background ?? colors.purple);
+  const fg = tone || !color ? colors.onAccent : color;
+  return (
+    <View style={[styles.badge, clay.control, { backgroundColor: bg }]}>
+      <AppText variant="caption" color={fg} style={styles.badgeLabel}>
+        {label}
+      </AppText>
+    </View>
+  );
+};
+
+export const Blob = ({
+  tone = 'purple',
+  size = 56,
+  bounce = false,
+  delay = 0,
+  children,
+}: {
+  tone?: Tone;
+  size?: number;
+  bounce?: boolean;
+  delay?: number;
+  children?: React.ReactNode;
+}) => {
+  const reducedMotion = useReducedMotion();
+  const hop = useSharedValue(0);
+  useEffect(() => {
+    if (!bounce || reducedMotion) return;
+    hop.value = withDelay(
+      delay,
+      withRepeat(
+        withSequence(
+          withTiming(-7, { duration: 640, easing: Easing.out(Easing.quad) }),
+          withTiming(0, { duration: 640, easing: Easing.in(Easing.quad) }),
+        ),
+        -1,
+        false,
+      ),
+    );
+  }, [bounce, delay, reducedMotion, hop]);
+  const hopStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: hop.value }],
+  }));
+  return (
+    <Animated.View
+      style={[
+        styles.blob,
+        clay.blob,
+        hopStyle,
+        {
+          width: size,
+          height: size,
+          borderRadius: radius.blob,
+          backgroundColor: tones[tone],
+        },
+      ]}
+    >
+      {children}
+    </Animated.View>
+  );
+};
+
+export const Stat = ({
+  label,
+  value,
+  tone = 'mint',
+  testID,
+}: {
+  label: string;
+  value: string;
+  tone?: keyof typeof tones;
+  testID?: string;
 }) => (
-  <View style={[styles.badge, { backgroundColor: background }]}>
-    <AppText variant="caption" color={color}>
+  <View style={[styles.stat, clay.card]} testID={testID}>
+    <AppText variant="display" color={tones[tone]} numberOfLines={1} adjustsFontSizeToFit>
+      {value}
+    </AppText>
+    <AppText variant="caption" color={colors.textSecondary}>
       {label}
     </AppText>
   </View>
@@ -211,15 +299,12 @@ export const EmptyState = ({
   testID?: string;
 }) => (
   <View style={styles.empty} testID={testID}>
-    <View style={styles.emptyGlyph}>
-      {/* A resting barbell — waiting to be picked up. */}
-      <Svg width={44} height={24} viewBox="0 0 44 24">
-        <Line x1={4} y1={12} x2={40} y2={12} stroke={colors.accent} strokeWidth={3} strokeLinecap="round" />
-        <SvgRect x={8} y={3} width={5} height={18} rx={2} fill={colors.accent} />
-        <SvgRect x={31} y={3} width={5} height={18} rx={2} fill={colors.accent} />
-        <SvgRect x={14} y={6} width={4} height={12} rx={1.5} fill={colors.accentMuted} stroke={colors.accent} strokeWidth={1.5} />
-        <SvgRect x={26} y={6} width={4} height={12} rx={1.5} fill={colors.accentMuted} stroke={colors.accent} strokeWidth={1.5} />
-      </Svg>
+    <View style={[styles.emptyPal, clay.card]}>
+      <Image
+        source={require('../../../assets/pouf-pals/idle.jpg')}
+        style={styles.emptyPalImage}
+        accessibilityIgnoresInvertColors
+      />
     </View>
     <AppText variant="heading" style={styles.emptyTitle}>
       {title}
@@ -245,7 +330,7 @@ export function SegmentedControl<T extends string>({
   testID?: string;
 }) {
   return (
-    <View style={styles.segmented} testID={testID} accessibilityRole="radiogroup">
+    <View style={[styles.segmented, clay.field]} testID={testID} accessibilityRole="radiogroup">
       {options.map((option) => {
         const selected = option.value === value;
         return (
@@ -255,11 +340,12 @@ export function SegmentedControl<T extends string>({
             accessibilityState={{ selected }}
             accessibilityLabel={option.label}
             onPress={() => onChange(option.value)}
-            style={[styles.segment, selected && styles.segmentSelected]}
+            style={[styles.segment, selected && styles.segmentSelected, selected && clay.control]}
           >
             <AppText
               variant="caption"
-              color={selected ? colors.textInverse : colors.textSecondary}
+              color={selected ? colors.onAccent : colors.textSecondary}
+              style={styles.buttonLabel}
             >
               {option.label}
             </AppText>
@@ -282,10 +368,12 @@ export function ChipRow<T extends string>({
   onToggle: (value: T) => void;
   testID?: string;
 }) {
+  const chipTones = [tones.mint, tones.pink, tones.purple, tones.blue, tones.yellow, tones.orange];
   return (
     <View style={styles.chipRow} testID={testID}>
-      {options.map((option) => {
+      {options.map((option, index) => {
         const isOn = selected.includes(option.value);
+        const fill = chipTones[index % chipTones.length];
         return (
           <Pressable
             key={option.value}
@@ -293,9 +381,13 @@ export function ChipRow<T extends string>({
             accessibilityState={{ checked: isOn }}
             accessibilityLabel={option.label}
             onPress={() => onToggle(option.value)}
-            style={[styles.chip, isOn && styles.chipSelected]}
+            style={[
+              styles.chip,
+              isOn ? clay.control : clay.field,
+              { backgroundColor: isOn ? fill : colors.surface },
+            ]}
           >
-            <AppText variant="caption" color={isOn ? colors.textInverse : colors.textSecondary}>
+            <AppText variant="caption" color={isOn ? colors.onAccent : colors.textSecondary} style={styles.buttonLabel}>
               {option.label}
             </AppText>
           </Pressable>
@@ -316,14 +408,28 @@ const styles = StyleSheet.create({
   buttonCompact: {
     minHeight: 44,
     paddingHorizontal: spacing.lg,
+    borderRadius: 16,
+  },
+  buttonQuiet: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: 'rgba(201, 168, 255, 0.55)',
   },
   buttonDisabled: { opacity: 0.45 },
+  buttonLabel: { fontFamily: type.bodyBold.fontFamily, fontWeight: '800' },
   card: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.surfaceOutline,
-    padding: spacing.lg,
+    padding: spacing.xl,
+    overflow: 'hidden',
+  },
+  cardLip: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 10,
+    backgroundColor: 'rgba(156, 124, 220, 0.16)',
   },
   screenLight: {
     position: 'absolute',
@@ -338,23 +444,31 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
     alignSelf: 'flex-start',
   },
-  screen: { flex: 1, backgroundColor: colors.bg },
-  empty: { alignItems: 'center', paddingVertical: spacing.xxxl, paddingHorizontal: spacing.xl },
-  emptyGlyph: {
-    width: 64,
-    height: 64,
-    borderRadius: radius.full,
-    backgroundColor: colors.surfaceRaised,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.lg,
+  badgeLabel: { fontWeight: '800' },
+  blob: { alignItems: 'center', justifyContent: 'center' },
+  stat: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    gap: spacing.xs,
+    overflow: 'hidden',
   },
+  screen: { flex: 1, backgroundColor: colors.bg },
+  empty: { alignItems: 'center', paddingVertical: spacing.xxxl, paddingHorizontal: spacing.xl, gap: spacing.md },
+  emptyPal: {
+    width: 96,
+    height: 96,
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+    backgroundColor: colors.surface,
+  },
+  emptyPalImage: { width: '100%', height: '100%' },
   emptyTitle: { marginBottom: spacing.sm, textAlign: 'center' },
   emptyMessage: { textAlign: 'center', lineHeight: 22 },
   emptyAction: { marginTop: spacing.xl, alignSelf: 'stretch' },
   segmented: {
     flexDirection: 'row',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfacePressed,
     borderRadius: radius.md,
     padding: spacing.xs,
     gap: spacing.xs,
@@ -362,20 +476,16 @@ const styles = StyleSheet.create({
   segment: {
     flex: 1,
     minHeight: 44,
-    borderRadius: radius.sm,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  segmentSelected: { backgroundColor: colors.accent },
+  segmentSelected: { backgroundColor: colors.mint },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   chip: {
     minHeight: 44,
     borderRadius: radius.full,
     paddingHorizontal: spacing.lg,
     justifyContent: 'center',
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
-  chipSelected: { backgroundColor: colors.accent, borderColor: colors.accent },
 });

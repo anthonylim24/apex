@@ -1,46 +1,61 @@
 /**
- * Apex design tokens — dark-first, gym-first.
+ * Apex × 1st-Pouf — dark claymorphism tokens.
  *
- * Principles (see docs/design/design-system.md):
- * - Near-black backgrounds with high-contrast text for dim gym lighting.
- * - One energetic accent (electric lime) used sparingly for primary
- *   actions; semantic colors for rest/active/success/PR/warning states.
- * - Touch targets >= 56pt (64pt for the SetLogger) for one-handed,
- *   mid-set use with sweaty hands.
- * - Purposeful, fast motion — no bounce.
+ * Ported from 1st-Pouf's dark theme (pouf.css): plum-black foundations,
+ * unchanged pastel accents, ink-on-pastel (`onAccent`), and the clay
+ * recipe (top highlight + floor lip + drop). Gym rules still apply:
+ * 56–64pt targets, high contrast, one-handed SetLogger.
+ *
+ * @see https://1st-pouf.worksonmy.dev/docs/
  */
 
+export const tones = {
+  pink: '#FFB3D1',
+  purple: '#C9A8FF',
+  blue: '#9EC8FF',
+  mint: '#A8F0D0',
+  yellow: '#FFE58A',
+  orange: '#FFB38A',
+} as const;
+
+export type Tone = keyof typeof tones;
+
 export const colors = {
-  // Surfaces
-  bg: '#0A0B0E',
-  surface: '#14161B',
-  surfaceRaised: '#1C1F26',
-  surfacePressed: '#242833',
-  border: '#2A2E38',
-  /** Subtle top-light for screen gradients — ambient, not a banner. */
-  bgTop: '#10131B',
-  /** Hairline top-edge highlight for cards (border, never with a shadow). */
-  surfaceOutline: 'rgba(244, 246, 248, 0.06)',
+  bg: '#12111A',
+  surface: '#211F2B',
+  surfaceRaised: '#2B2838',
+  surfacePressed: '#18161F',
+  border: 'rgba(201, 168, 255, 0.22)',
+  bgTop: '#1A1730',
+  surfaceOutline: 'rgba(255, 255, 255, 0.07)',
 
-  // Text (contrast vs bg: 15.9:1, 7.6:1, 4.9:1)
-  text: '#F4F6F8',
-  textSecondary: '#A9B2BC',
-  textTertiary: '#7C8590',
-  textInverse: '#0A0B0E',
+  text: '#F7F3FF',
+  textSecondary: '#B8AFCB',
+  textTertiary: '#8E85A8',
+  /** Ink that sits ON a pastel fill — stays dark in dark mode. */
+  textInverse: '#2A2145',
+  onAccent: '#2A2145',
+  onAccentMuted: '#493B64',
 
-  // Brand accent — electric lime "energy"
-  accent: '#C8F542',
-  accentPressed: '#A8D32E',
-  accentMuted: '#39401F',
+  /** Primary action = pouf mint (up). */
+  accent: tones.mint,
+  accentPressed: '#86D4B0',
+  accentMuted: 'rgba(168, 240, 208, 0.18)',
 
-  // Semantic
-  rest: '#41C7E0', // rest timer / recovery
-  active: '#C8F542', // live set in progress
-  success: '#4ADE80',
-  pr: '#FFC542', // personal record gold
-  warning: '#FFA23E',
-  danger: '#FF5C5C',
-  dangerMuted: '#3D2226',
+  rest: tones.blue,
+  active: tones.mint,
+  success: tones.mint,
+  pr: tones.yellow,
+  warning: tones.orange,
+  danger: tones.pink,
+  dangerMuted: 'rgba(255, 179, 209, 0.16)',
+
+  pink: tones.pink,
+  purple: tones.purple,
+  blue: tones.blue,
+  mint: tones.mint,
+  yellow: tones.yellow,
+  orange: tones.orange,
 } as const;
 
 export const spacing = {
@@ -54,20 +69,22 @@ export const spacing = {
 } as const;
 
 export const radius = {
-  sm: 8,
-  md: 12,
-  lg: 16,
+  sm: 14,
+  md: 20,
+  lg: 32,
   xl: 24,
+  blob: 24,
   full: 999,
 } as const;
 
-/** Poster display face — loaded at the root via `@expo-google-fonts/anton`. */
 export const fonts = {
   display: 'Anton_400Regular',
+  ui: 'Nunito_800ExtraBold',
+  body: 'Nunito_400Regular',
+  bodyBold: 'Nunito_700Bold',
 } as const;
 
 export const type = {
-  /** Hero numerals in the Workout Player (weight/reps/timer). */
   displayXl: {
     fontSize: 68,
     fontFamily: fonts.display,
@@ -82,26 +99,29 @@ export const type = {
   },
   title: {
     fontSize: 32,
-    fontFamily: fonts.display,
-    fontWeight: '400',
-    letterSpacing: 1,
+    fontFamily: fonts.ui,
+    fontWeight: '800',
+    letterSpacing: -0.4,
+  },
+  heading: { fontSize: 20, fontFamily: fonts.ui, fontWeight: '800' },
+  body: { fontSize: 16, fontFamily: fonts.body, fontWeight: '400' },
+  bodyBold: { fontSize: 16, fontFamily: fonts.bodyBold, fontWeight: '700' },
+  caption: { fontSize: 13, fontFamily: fonts.bodyBold, fontWeight: '700' },
+  label: {
+    fontSize: 12,
+    fontFamily: fonts.ui,
+    fontWeight: '800',
+    letterSpacing: 1.1,
     textTransform: 'uppercase',
   },
-  heading: { fontSize: 20, fontWeight: '800' },
-  body: { fontSize: 16, fontWeight: '400' },
-  bodyBold: { fontSize: 16, fontWeight: '700' },
-  caption: { fontSize: 13, fontWeight: '500' },
-  label: { fontSize: 12, fontWeight: '600', letterSpacing: 1.2, textTransform: 'uppercase' },
 } as const;
 
-/** Minimum touch target sizes (pt). WCAG 2.2 target-size plus gym margin. */
 export const touch = {
   min: 56,
   setLogger: 64,
   hitSlop: { top: 8, bottom: 8, left: 8, right: 8 },
 } as const;
 
-/** Motion durations (ms) — gym-energy: fast in, faster out, no bounce. */
 export const motion = {
   fast: 120,
   base: 200,

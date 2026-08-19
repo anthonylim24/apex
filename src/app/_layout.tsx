@@ -1,4 +1,10 @@
-import { Anton_400Regular, useFonts } from '@expo-google-fonts/anton';
+import { Anton_400Regular } from '@expo-google-fonts/anton';
+import {
+  Nunito_400Regular,
+  Nunito_700Bold,
+  Nunito_800ExtraBold,
+  useFonts,
+} from '@expo-google-fonts/nunito';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
@@ -9,7 +15,12 @@ import { AppProviders } from '@/state/appContext';
 import { colors } from '@/ui/theme';
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({ Anton_400Regular });
+  const [fontsLoaded] = useFonts({
+    Anton_400Regular,
+    Nunito_400Regular,
+    Nunito_700Bold,
+    Nunito_800ExtraBold,
+  });
   if (!fontsLoaded) {
     return null;
   }

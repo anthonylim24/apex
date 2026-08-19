@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { useReducedMotion } from 'react-native-reanimated';
 import Svg, { Circle, Defs, Line, LinearGradient, Path, Rect, Stop, Text as SvgText } from 'react-native-svg';
 import type { TrendPoint } from '../../domain/stats';
+import { clay } from '../clay';
 import { colors, fonts, spacing } from '../theme';
 import { AppText } from './primitives';
 
@@ -34,7 +35,7 @@ export const ProgressChart = ({
 }) => {
   if (points.length === 0) {
     return (
-      <View style={[styles.emptyBox, { width }]} testID={`${testID}-empty`}>
+      <View style={[styles.emptyBox, clay.field, { width }]} testID={`${testID}-empty`}>
         <AppText variant="caption" color={colors.textTertiary}>
           Log a few sessions to see your trend
         </AppText>
@@ -213,7 +214,7 @@ export const WeeklyBars = ({
                 y={height - barHeight}
                 width={barWidth}
                 height={barHeight}
-                rx={4}
+                rx={10}
                 fill={d.value > 0 ? `url(#${fillId})` : colors.surfaceRaised}
               />
               <SvgText
@@ -239,10 +240,8 @@ const styles = StyleSheet.create({
     height: CHART_HEIGHT,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: colors.surfacePressed,
+    borderRadius: 20,
   },
   unitLabel: { textAlign: 'center', marginTop: spacing.xs },
 });

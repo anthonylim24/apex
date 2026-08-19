@@ -26,20 +26,20 @@ interface PieceSpec {
 }
 
 const PIECES: PieceSpec[] = [
-  { xPct: 8, drift: 18, delay: 0, size: 9, color: colors.accent, spin: 260 },
-  { xPct: 15, drift: -12, delay: 90, size: 7, color: colors.pr, spin: -200 },
-  { xPct: 24, drift: 22, delay: 30, size: 8, color: colors.rest, spin: 320 },
-  { xPct: 32, drift: -20, delay: 140, size: 10, color: colors.accent, spin: -280 },
-  { xPct: 41, drift: 10, delay: 60, size: 7, color: colors.pr, spin: 240 },
-  { xPct: 49, drift: -16, delay: 0, size: 9, color: colors.success, spin: -300 },
-  { xPct: 57, drift: 24, delay: 110, size: 8, color: colors.accent, spin: 280 },
-  { xPct: 65, drift: -8, delay: 50, size: 7, color: colors.rest, spin: -220 },
-  { xPct: 73, drift: 14, delay: 160, size: 10, color: colors.pr, spin: 300 },
-  { xPct: 81, drift: -22, delay: 20, size: 8, color: colors.accent, spin: -260 },
-  { xPct: 88, drift: 12, delay: 130, size: 7, color: colors.success, spin: 240 },
-  { xPct: 94, drift: -14, delay: 80, size: 9, color: colors.pr, spin: -320 },
-  { xPct: 37, drift: 26, delay: 190, size: 6, color: colors.rest, spin: 340 },
-  { xPct: 61, drift: -26, delay: 200, size: 6, color: colors.accent, spin: -340 },
+  { xPct: 8, drift: 18, delay: 0, size: 9, color: colors.mint, spin: 260 },
+  { xPct: 15, drift: -12, delay: 90, size: 7, color: colors.yellow, spin: -200 },
+  { xPct: 24, drift: 22, delay: 30, size: 8, color: colors.pink, spin: 320 },
+  { xPct: 32, drift: -20, delay: 140, size: 10, color: colors.purple, spin: -280 },
+  { xPct: 41, drift: 10, delay: 60, size: 7, color: colors.blue, spin: 240 },
+  { xPct: 49, drift: -16, delay: 0, size: 9, color: colors.orange, spin: -300 },
+  { xPct: 57, drift: 24, delay: 110, size: 8, color: colors.mint, spin: 280 },
+  { xPct: 65, drift: -8, delay: 50, size: 7, color: colors.pink, spin: -220 },
+  { xPct: 73, drift: 14, delay: 160, size: 10, color: colors.yellow, spin: 300 },
+  { xPct: 81, drift: -22, delay: 20, size: 8, color: colors.purple, spin: -260 },
+  { xPct: 88, drift: 12, delay: 130, size: 7, color: colors.blue, spin: 240 },
+  { xPct: 94, drift: -14, delay: 80, size: 9, color: colors.orange, spin: -320 },
+  { xPct: 37, drift: 26, delay: 190, size: 6, color: colors.mint, spin: 340 },
+  { xPct: 61, drift: -26, delay: 200, size: 6, color: colors.pink, spin: -340 },
 ];
 
 const FALL_MS = 1100;
