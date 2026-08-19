@@ -64,10 +64,19 @@ export default function ExerciseDetail() {
         {exercise.name}
       </AppText>
       <View style={styles.badges}>
-        <Badge label={exercise.difficulty} color={colors.accent} />
-        <Badge label={formatMuscle(exercise.movementPattern)} />
+        <Badge
+          label={exercise.difficulty}
+          tone={
+            exercise.difficulty === 'beginner'
+              ? 'mint'
+              : exercise.difficulty === 'advanced'
+                ? 'pink'
+                : 'yellow'
+          }
+        />
+        <Badge label={formatMuscle(exercise.movementPattern)} tone="purple" />
         {exercise.equipment.map((eq) => (
-          <Badge key={eq} label={formatMuscle(eq)} />
+          <Badge key={eq} label={formatMuscle(eq)} tone="blue" />
         ))}
       </View>
 

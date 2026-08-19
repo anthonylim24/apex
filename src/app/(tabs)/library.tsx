@@ -1,13 +1,14 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
-import { FlatList, StyleSheet, TextInput, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { searchExercises, type ExerciseFilters } from '@/domain/exerciseSearch';
 import type { Difficulty, Equipment, MovementPattern, MuscleGroup } from '@/domain/types';
 import { useExerciseLibrary, useFavorites, useToggleFavorite } from '@/state/queries';
 import { ExerciseCard } from '@/ui/components/exerciseCard';
-import { AppText, Button, ChipRow, EmptyState } from '@/ui/components/primitives';
-import { colors, radius, spacing, touch } from '@/ui/theme';
+import { FieldInput } from '@/ui/components/poufKit';
+import { AppText, Button, Card, ChipRow, EmptyState } from '@/ui/components/primitives';
+import { colors, spacing } from '@/ui/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const MUSCLES: { value: MuscleGroup; label: string }[] = [
@@ -96,11 +97,10 @@ export default function Library() {
           <AppText variant="title">Exercises</AppText>
         </View>
         <View style={styles.searchRow}>
-          <TextInput
+          <FieldInput
             testID="library-search"
             style={styles.search}
             placeholder="Search exercises, muscles, equipment…"
-            placeholderTextColor={colors.textTertiary}
             value={query}
             onChangeText={setQuery}
             accessibilityLabel="Search exercises"
@@ -116,7 +116,7 @@ export default function Library() {
         </View>
 
         {showFilters ? (
-          <View style={styles.filters} testID="library-filters">
+          <Card style={styles.filters} testID="library-filters">
             <AppText variant="label" color={colors.textSecondary}>
               Muscle
             </AppText>
@@ -139,7 +139,7 @@ export default function Library() {
               onToggle={() => setFavoritesOnly((v) => !v)}
               testID="library-favorites-filter"
             />
-          </View>
+          </Card>
         ) : null}
 
         <FlatList
@@ -201,25 +201,11 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     alignItems: 'center',
   },
-  search: {
-    flex: 1,
-    minHeight: touch.min - 8,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: colors.surfaceOutline,
-    backgroundColor: colors.surface,
-    color: colors.text,
-    paddingHorizontal: spacing.lg,
-    fontSize: 16,
-    fontWeight: '600',
-    letterSpacing: 0.3,
-  },
+  search: { flex: 1, minHeight: 48 },
   filters: {
-    paddingHorizontal: spacing.lg,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.md,
     gap: spacing.sm,
-    paddingBottom: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.surfaceOutline,
   },
   listFlex: { flex: 1 },
   list: { paddingHorizontal: spacing.lg, gap: spacing.xs, paddingBottom: spacing.xxxl, paddingTop: spacing.sm },

@@ -1,12 +1,13 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useAuthSession } from '@/auth/auth';
 import type { Equipment, ExperienceLevel, Goal, Profile, Unit } from '@/domain/types';
 import { useRepository } from '@/state/appContext';
 import { useProfile, useSaveProfile } from '@/state/queries';
+import { Avatar, Callout, FieldInput } from '@/ui/components/poufKit';
 import { AppText, Button, Card, ChipRow, Screen, SegmentedControl } from '@/ui/components/primitives';
-import { colors, radius, spacing, touch } from '@/ui/theme';
+import { colors, spacing } from '@/ui/theme';
 
 const GOALS: { value: Goal; label: string }[] = [
   { value: 'hypertrophy', label: 'Muscle' },
@@ -93,33 +94,32 @@ export default function ProfileScreen() {
   return (
     <Screen testID="profile-screen">
       <View style={styles.masthead}>
+        <Avatar
+          initials={(p.displayName ?? 'Apex').slice(0, 2)}
+          tone="pink"
+          size={72}
+          testID="profile-avatar"
+        />
         <AppText variant="title" style={styles.title}>
           Profile
         </AppText>
-        <View style={styles.titleRule} />
       </View>
 
-      <View style={styles.syncStrip} testID="profile-sync">
-        <View style={styles.syncCopy}>
-          <AppText variant="caption" color={colors.textSecondary}>
-            {auth.mode === 'clerk'
-              ? 'Signed in — your data syncs to your private account.'
-              : 'Local mode — all data stays on this device. Configure Clerk + Supabase to enable account sync.'}
-          </AppText>
-          <AppText
-            variant="caption"
-            color={pending > 0 ? colors.warning : colors.success}
-            testID="profile-pending"
-          >
-            {pending > 0
-              ? `${pending} change${pending === 1 ? '' : 's'} waiting to sync`
-              : 'All changes saved'}
-          </AppText>
-        </View>
+      <Callout tone={pending > 0 ? 'orange' : 'mint'} title="Sync" testID="profile-sync" style={styles.sync}>
+        <AppText variant="caption" color={colors.onAccent}>
+          {auth.mode === 'clerk'
+            ? 'Signed in — your data syncs to your private account.'
+            : 'Local mode — all data stays on this device. Configure Clerk + Supabase to enable account sync.'}
+        </AppText>
+        <AppText variant="caption" color={colors.onAccent} testID="profile-pending">
+          {pending > 0
+            ? `${pending} change${pending === 1 ? '' : 's'} waiting to sync`
+            : 'All changes saved'}
+        </AppText>
         {auth.mode === 'clerk' ? (
           <Button label="Sign out" variant="danger" compact onPress={() => void auth.signOut()} />
         ) : null}
-      </View>
+      </Callout>
 
       <Card style={styles.identityCard}>
         <AppText variant="display">{goalLabel}</AppText>
@@ -201,10 +201,9 @@ export default function ProfileScreen() {
           </AppText>
         )}
         <View style={styles.bodyweightRow}>
-          <TextInput
+          <FieldInput
             style={styles.input}
             placeholder={`Weight in ${p.unit}`}
-            placeholderTextColor={colors.textTertiary}
             keyboardType="decimal-pad"
             value={bodyweightInput}
             onChangeText={setBodyweightInput}
@@ -226,37 +225,12 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  title: { paddingTop: spacing.xl },
-  masthead: { gap: spacing.sm, marginBottom: spacing.lg },
-  titleRule: {
-    width: 40,
-    height: 2,
-    backgroundColor: colors.accent,
-  },
-  syncStrip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    backgroundColor: colors.surfaceRaised,
-    borderRadius: radius.md,
-    marginBottom: spacing.xl,
-  },
-  syncCopy: { flex: 1, gap: spacing.xs },
+  title: { paddingTop: spacing.sm },
+  masthead: { gap: spacing.md, marginBottom: spacing.lg, paddingTop: spacing.lg },
+  sync: { marginBottom: spacing.xl, gap: spacing.sm },
   identityCard: { gap: spacing.md, marginBottom: spacing.xl },
   prefsBlock: { gap: spacing.sm, marginBottom: spacing.xl },
   bodyweightCard: { gap: spacing.md, marginBottom: spacing.lg },
   bodyweightRow: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center' },
-  input: {
-    flex: 1,
-    minHeight: touch.min - 8,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surfaceRaised,
-    color: colors.text,
-    paddingHorizontal: spacing.lg,
-    fontSize: 16,
-  },
+  input: { flex: 1 },
 });

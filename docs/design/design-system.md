@@ -4,64 +4,67 @@ Dark-first, gym-first. Implemented in `src/ui/theme.ts` (single source of truth)
 explains the reasoning. Gym principles: **glanceable, one-handed, works in dim lighting,
 motivating but not distracting.**
 
-Visual world: **Iron Poster** (see `docs/design/overdrive-plan.md`) — athletic poster typography,
-near-black surfaces with a top-light gradient (`bgTop` → `bg`), hairline card elevation, one lime
-accent doing real work. Personality stays in earned/idle moments; the SetLogger loop stays fast.
+Visual world: **1st-Pouf dark clay** (https://1st-pouf.worksonmy.dev) — plum-black cushions,
+pastel accents (mint / pink / purple / blue / yellow / orange), Nunito UI + Anton numerals.
+Depth is the affordance: buttons press in, cards have a floor lip. Exercise demos are Pouf Pal
+clay stills with a 2.4s squash/stretch. Gym rules (56–64pt, reduce-motion, SetLogger speed) stay.
 
 ## 1. Color
 
-| Token | Value | Use | Contrast vs bg |
-|---|---|---|---|
-| `bg` | `#0A0B0E` | App background (near-black; true black causes OLED smear on scroll) | — |
-| `surface` | `#14161B` | Cards, inputs | — |
-| `surfaceRaised` | `#1C1F26` | Steppers, chips, secondary buttons | — |
-| `surfacePressed` | `#242833` | Pressed states | — |
-| `border` | `#2A2E38` | Hairlines | — |
-| `text` | `#F4F6F8` | Primary text | 15.9:1 |
-| `textSecondary` | `#A9B2BC` | Supporting text | 7.6:1 |
-| `textTertiary` | `#7C8590` | Labels, hints (never essential info) | 4.9:1 |
-| `accent` | `#C8F542` | Electric lime — primary actions, live/active, progress lines | 12.9:1 |
-| `rest` | `#41C7E0` | Rest timer, recovery semantics | 9.0:1 |
-| `success` | `#4ADE80` | Saved/synced confirmation | |
-| `pr` | `#FFC542` | Personal records (gold) | |
-| `warning` | `#FFA23E` | Failure tags, pending sync | |
-| `danger` | `#FF5C5C` | Destructive actions | |
+Ported from 1st-Pouf dark (`pouf.css`). Accents never flip in dark mode; ink *on* a pastel
+fill stays `--on-accent` (`#2A2145`).
 
-Rules: one accent per screen region; semantic colors never repurposed (rest-cyan means recovery
-everywhere); color is never the only signal (labels/borders always accompany it).
+| Token | Value | Use |
+|---|---|---|
+| `bg` | `#12111A` | Plum-black page |
+| `surface` | `#211F2B` | Cards, rows |
+| `surfaceRaised` | `#2B2838` | Recessed chrome |
+| `surfacePressed` | `#18161F` | Fields, pressed wells |
+| `text` | `#F7F3FF` | Ink |
+| `textSecondary` | `#B8AFCB` | Supporting |
+| `onAccent` | `#2A2145` | Type sitting on pastel |
+| `accent` / `mint` | `#A8F0D0` | Primary actions, live, progress |
+| `purple` | `#C9A8FF` | Secondary actions, steppers |
+| `pink` | `#FFB3D1` | Danger, advanced, Pouf Pal |
+| `blue` | `#9EC8FF` | Rest, info |
+| `yellow` | `#FFE58A` | PR, coach notes |
+| `orange` | `#FFB38A` | Warn, failure |
+
+Rules: one accent per screen region; semantic colors never repurposed (blue means recovery
+everywhere); color is never the only signal (labels always accompany it).
 
 ## 2. Typography
 
-Iron Poster pairing: **Anton** (`Anton_400Regular`, loaded at the root) for display/title/numerals;
-system sans (SF Pro / Roboto) for body, captions, and labels.
+**Nunito** (`Nunito_400/700/800`) for UI. **Anton** only for mid-set numerals (weight, reps,
+rest clock) so they stay readable at arm's length.
 
 | Token | Size / face | Use |
 |---|---|---|
 | `displayXl` | 68 / Anton | Rest countdown |
-| `display` | 48 / Anton | Stepper values, home greeting, poster figures |
-| `title` | 32 / Anton uppercase | Screen titles, set lockup, player exercise name |
-| `heading` | 20 / 800 system | Card/section headings |
-| `body` / `bodyBold` | 16 / 400·700 | Default text |
-| `caption` | 13 / 500 | Meta, cues |
-| `label` | 12 / 600 upper | Field labels |
+| `display` | 48 / Anton | Stepper values, home greeting, Stat figures |
+| `title` | 32 / Nunito 800 | Screen titles, set lockup, player exercise name |
+| `heading` | 20 / Nunito 800 | Card/section headings |
+| `body` / `bodyBold` | 16 / Nunito 400·700 | Default text |
+| `caption` | 13 / Nunito 700 | Meta, cues |
+| `label` | 12 / Nunito 800 upper | Field labels |
 
 Numerals the lifter reads mid-set (weight, reps, timer) are the largest elements on screen —
 readable at arm's length on a bench. Tracking stays ≥ −0.04em.
 
 ## 3. Spacing, radius, touch
 
-- 4-pt spacing scale (`xs 4 … xxxl 48`); radius `sm 8 / md 12 / lg 16 / xl 24 / full`.
+- 4-pt spacing scale (`xs 4 … xxxl 48`); radius `sm 14 / md 20 / lg 32 / xl 24 / blob 24 / full`.
 - **Touch targets:** minimum 56 pt globally, 64 pt for SetLogger controls (steppers, LOG SET).
   8 pt `hitSlop` on all pressables. Chips/secondary in-card controls ≥ 44 pt (WCAG 2.2 minimum)
   and are never part of the mid-set loop.
 
 ## 4. Motion
 
-Gym-energy: fast, purposeful, no bounce. `fast 120 ms / base 200 ms / slow 320 ms`, ease-out.
-Sanctioned motion: screen transitions (fade-from-bottom 200 ms), rest-ring progress + last-10s
-breathe, stepper numeral spring-pop, primary-button press spring (0.97), chart draw-in, PR
-celebration pulse. All honor reduce-motion. Nothing loops for attention except the rest-ring
-breathe in the final 10 seconds.
+Clay press-in (buttons translate down 3 pt) plus gym-energy timing: `fast 120 / base 200 / slow 320`.
+Sanctioned motion: screen transitions, rest-ring breathe in the last 10 s, stepper pop, button
+press-in, chart draw-in, PR pulse, Pouf Pal 2.4 s character loop (anticipate → squash → stretch
+→ settle), idle Blob hops. All honor reduce-motion. Nothing loops for attention except rest-ring
+breathe and Pouf Pal / Blob idle hops (idle surfaces only).
 
 ## 5. Component specs (priority order)
 
@@ -85,8 +88,13 @@ lifter can pre-plan. Wall-clock anchored — survives navigation, backgrounding,
 
 ### ExerciseCard
 Leading **PoseGlyph** (static mid-rep pose from the exercise's choreography, 48 pt), name,
-primary muscles + equipment line, difficulty badge (color + text), favorite star with its
-own 56 pt target (independent of the card press). Min height 72 pt. Hairline `surfaceOutline`.
+primary muscles + equipment line, difficulty badge (mint / yellow / pink tone), favorite star
+with its own 56 pt target. Clay row cushion, min height 72 pt.
+
+### Pouf kit (ported from 1st-Pouf)
+`FieldInput`, `Avatar`, `Switch`, `ProgressPips`, `Callout`, `ListRow`, `Divider`, `Blob`,
+`Stat`, `Badge` tones, clay `Button` / `Card` / `ChipRow` / `SegmentedControl`. Web gets the
+real inset stack; native paints a floor lip + drop.
 
 ### ProgressChart / WeeklyBars
 Custom SVG (renders identically on iOS/Android/web; headless-testable). Gradient area fill
@@ -116,13 +124,13 @@ lifting. The implemented personality layer (`src/ui/coachVoice.ts` + components)
 
 | Moment | Treatment | Why it's safe |
 |---|---|---|
-| Home header | Apex wordmark + Anton greeting + 4%-opacity Apex mark as background texture | Idle browsing moment |
-| Home card | Daily "Coach's note" — one science-grounded line, rotates by calendar day (deterministic, no variable reward) | Educates; never nags |
-| Library cards | PoseGlyph — each exercise's own mid-rep pose as the leading mark | Catalog identity, not decoration |
-| Exercise detail | Procedural movement demonstration at coached tempo | Educational motion, reduce-motion aware |
-| Rest timer | Ring warms cyan → lime in the final 10 s ("Almost go"); one rotating coach line per set ("Good set. Big breaths.") — cycled by set count, not random | Rest is the one idle moment mid-workout |
-| New PR | Single confetti burst (14 deterministic pieces, ~1.1 s, once) + gold card | Earned, brief, honest — fires only on real records |
-| Empty states | Resting-barbell glyph | Warmth without mascot kitsch |
+| Home header | Apex wordmark + Pouf Pal idle + bouncing pastel Blobs | Idle browsing moment |
+| Home card | Daily "Coach's note" on a yellow Callout — rotates by calendar day | Educates; never nags |
+| Library cards | PoseGlyph + clay row + tone badges | Catalog identity |
+| Exercise detail | Pouf Pal clay still with a 2.4 s character loop at coached tempo | Educational motion, reduce-motion aware |
+| Rest timer | Ring warms blue → mint ("Almost go"); one rotating coach line per set | Rest is the one idle moment mid-workout |
+| New PR | Pastel confetti burst + yellow clay medal | Earned, brief, honest |
+| Empty states | Resting Pouf Pal still | Warmth without branded mascots |
 
 Rules: no charm inside the SetLogger interaction loop; every flourish respects reduce-motion;
 all copy is deterministic (day/set index), so delight never becomes a slot machine.

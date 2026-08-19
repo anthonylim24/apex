@@ -13,10 +13,11 @@ import { useSessionStore } from '@/state/sessionStore';
 import { useExerciseLibrary, useProfile, useSaveSession, useSessions } from '@/state/queries';
 import { restEncouragement } from '@/ui/coachVoice';
 import { PrCelebration } from '@/ui/components/prCelebration';
+import { Callout, ProgressPips } from '@/ui/components/poufKit';
 import { AppText, Button } from '@/ui/components/primitives';
 import { RestTimerOverlay } from '@/ui/components/restTimer';
 import { SetLogger } from '@/ui/components/setLogger';
-import { colors, radius, spacing } from '@/ui/theme';
+import { colors, spacing } from '@/ui/theme';
 
 /**
  * Live Workout Player — the highest-priority surface.
@@ -160,7 +161,6 @@ export default function WorkoutPlayer() {
       <View style={styles.padded}>
         <View style={styles.headerBlock}>
           <View
-            style={styles.exerciseTrack}
             accessibilityRole="progressbar"
             accessibilityLabel={`Exercise ${exerciseIndex + 1} of ${session.exercises.length}`}
             accessibilityValue={{
@@ -169,12 +169,7 @@ export default function WorkoutPlayer() {
               now: exerciseIndex + 1,
             }}
           >
-            {session.exercises.map((exercise, index) => (
-              <View
-                key={`${exercise.exerciseId}-${index}`}
-                style={[styles.trackSegment, index <= exerciseIndex && styles.trackSegmentFilled]}
-              />
-            ))}
+            <ProgressPips total={session.exercises.length} current={exerciseIndex} />
           </View>
           <View style={styles.header}>
             <View style={styles.headerText}>
@@ -203,11 +198,9 @@ export default function WorkoutPlayer() {
         </View>
 
         {suggestion && suggestion.action !== 'hold' && lastSets.length > 0 ? (
-          <View style={styles.suggestion} testID="player-suggestion">
-            <AppText variant="caption" color={colors.accent}>
-              {suggestion.rationale}
-            </AppText>
-          </View>
+          <Callout tone="mint" testID="player-suggestion" style={styles.suggestion}>
+            {suggestion.rationale}
+          </Callout>
         ) : null}
 
         <View style={styles.body}>
@@ -309,19 +302,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
   },
   headerBlock: { marginBottom: spacing.md, gap: spacing.sm },
-  exerciseTrack: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    height: 4,
-  },
-  trackSegment: {
-    flex: 1,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.surfaceRaised,
-  },
-  trackSegmentFilled: { backgroundColor: colors.accent },
   header: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -329,15 +309,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   headerText: { flex: 1, gap: 2 },
-  suggestion: {
-    alignSelf: 'flex-start',
-    maxWidth: '100%',
-    backgroundColor: colors.accentMuted,
-    borderRadius: radius.full,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    marginBottom: spacing.md,
-  },
+  suggestion: { marginBottom: spacing.md },
   body: { flex: 1, justifyContent: 'flex-end' },
   footer: {
     flexDirection: 'row',

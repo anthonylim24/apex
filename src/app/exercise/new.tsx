@@ -1,10 +1,11 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import type { Difficulty, Equipment, MovementPattern, MuscleGroup } from '@/domain/types';
 import { useSaveCustomExercise } from '@/state/queries';
+import { FieldInput } from '@/ui/components/poufKit';
 import { AppText, Button, ChipRow, Screen, SegmentedControl } from '@/ui/components/primitives';
-import { colors, radius, spacing, touch } from '@/ui/theme';
+import { colors, spacing } from '@/ui/theme';
 
 const MUSCLES: { value: MuscleGroup; label: string }[] = [
   { value: 'chest', label: 'Chest' },
@@ -95,30 +96,27 @@ export default function NewExercise() {
       <AppText variant="title">Custom exercise</AppText>
 
       <View style={styles.form}>
-        <TextInput
+        <FieldInput
           testID="new-exercise-name"
           style={styles.input}
           placeholder="Name (e.g. Landmine Press)"
-          placeholderTextColor={colors.textTertiary}
           value={name}
           onChangeText={setName}
           accessibilityLabel="Exercise name"
         />
-        <TextInput
+        <FieldInput
           testID="new-exercise-description"
           style={[styles.input, styles.multiline]}
           placeholder="Short description (optional)"
-          placeholderTextColor={colors.textTertiary}
           value={description}
           onChangeText={setDescription}
           multiline
           accessibilityLabel="Description"
         />
-        <TextInput
+        <FieldInput
           testID="new-exercise-instructions"
           style={[styles.input, styles.multiline]}
           placeholder={'Instructions, one step per line (optional)'}
-          placeholderTextColor={colors.textTertiary}
           value={instructions}
           onChangeText={setInstructions}
           multiline
@@ -178,16 +176,6 @@ export default function NewExercise() {
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', paddingVertical: spacing.md },
   form: { marginTop: spacing.lg, gap: spacing.md },
-  input: {
-    minHeight: touch.min,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    color: colors.text,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    fontSize: 16,
-  },
+  input: { minHeight: 56 },
   multiline: { minHeight: 88, textAlignVertical: 'top' },
 });

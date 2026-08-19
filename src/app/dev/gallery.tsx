@@ -10,7 +10,16 @@ import { PoseGlyph } from '@/ui/components/poseGlyph';
 import { MuscleDiagram } from '@/ui/components/muscleDiagram';
 import { PrCelebration } from '@/ui/components/prCelebration';
 import { ProgressChart, WeeklyBars } from '@/ui/components/progressChart';
-import { AppText, Badge, Button, Card, EmptyState, Screen, SegmentedControl } from '@/ui/components/primitives';
+import {
+  Avatar,
+  Callout,
+  Divider,
+  FieldInput,
+  ListRow,
+  ProgressPips,
+  Switch,
+} from '@/ui/components/poufKit';
+import { AppText, Badge, Blob, Button, Card, EmptyState, Screen, SegmentedControl, Stat } from '@/ui/components/primitives';
 import { RestTimerOverlay } from '@/ui/components/restTimer';
 import { RpePicker } from '@/ui/components/rpePicker';
 import { SetLogger } from '@/ui/components/setLogger';
@@ -41,6 +50,8 @@ export default function Gallery() {
   const [favorite, setFavorite] = useState(false);
   const [showPr, setShowPr] = useState(false);
   const [segment, setSegment] = useState('one');
+  const [kitSwitch, setKitSwitch] = useState(true);
+  const [kitField, setKitField] = useState('Pouf');
 
   const bench = SEED_EXERCISES.find((e) => e.id === 'bench-press')!;
 
@@ -206,17 +217,42 @@ export default function Gallery() {
         </Card>
       </Section>
 
-      <Section title="Buttons, badges, segmented control" testID="gallery-misc">
+      <Section title="1st-Pouf kit — cushions, tones, fields" testID="gallery-pouf-kit">
         <Card style={styles.miscCard}>
-          <Button label="Primary" onPress={() => undefined} />
-          <Button label="Secondary" variant="secondary" onPress={() => undefined} />
-          <Button label="Danger" variant="danger" onPress={() => undefined} />
           <View style={styles.badgeRow}>
-            <Badge label="rest" color={colors.rest} />
-            <Badge label="active" color={colors.active} />
-            <Badge label="PR" color={colors.pr} />
-            <Badge label="warning" color={colors.warning} />
+            <Blob tone="pink" size={40} bounce />
+            <Blob tone="mint" size={36} bounce delay={120} />
+            <Blob tone="purple" size={32} bounce delay={240} />
+            <Avatar initials="AP" tone="yellow" size={48} />
           </View>
+          <View style={styles.badgeRow}>
+            <Stat label="sets" value="12" tone="mint" />
+            <Stat label="min" value="48" tone="blue" />
+          </View>
+          <ProgressPips total={5} current={2} />
+          <Switch label="Clay switch" value={kitSwitch} onValueChange={setKitSwitch} testID="gallery-switch" />
+          <FieldInput
+            testID="gallery-field"
+            value={kitField}
+            onChangeText={setKitField}
+            placeholder="Clay field"
+          />
+          <Callout tone="pink" title="Callout">
+            Pastel cushion with ink-on-accent type.
+          </Callout>
+          <ListRow title="List row" subtitle="Pressable clay row" meta="Today" onPress={() => undefined} />
+          <Divider />
+          <View style={styles.badgeRow}>
+            <Badge label="mint" tone="mint" />
+            <Badge label="pink" tone="pink" />
+            <Badge label="purple" tone="purple" />
+            <Badge label="blue" tone="blue" />
+            <Badge label="yellow" tone="yellow" />
+            <Badge label="orange" tone="orange" />
+          </View>
+          <Button label="Primary mint" onPress={() => undefined} />
+          <Button label="Secondary purple" variant="secondary" onPress={() => undefined} />
+          <Button label="Danger pink" variant="danger" onPress={() => undefined} />
           <SegmentedControl
             options={[
               { value: 'one', label: 'One' },

@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useReducedMotion,
@@ -10,7 +10,9 @@ import Animated, {
 import { useAuthSession } from '@/auth/auth';
 import type { Equipment, ExperienceLevel, Goal, MuscleGroup, Profile, Unit } from '@/domain/types';
 import { useSaveProfile } from '@/state/queries';
+import { FieldInput, PoufIdle, ProgressPips } from '@/ui/components/poufKit';
 import { AppText, Button, ChipRow, Screen, SegmentedControl } from '@/ui/components/primitives';
+import { clay } from '@/ui/clay';
 import { colors, radius, spacing, touch } from '@/ui/theme';
 
 const GOALS: { value: Goal; label: string; detail: string }[] = [
@@ -103,23 +105,14 @@ export default function Onboarding() {
 
   return (
     <Screen testID="onboarding-screen">
-      <View style={styles.progressRow} accessibilityRole="progressbar">
-        {Array.from({ length: TOTAL_STEPS }, (_, i) => (
-          <View
-            key={i}
-            style={[
-              styles.progressSeg,
-              i < step && styles.progressSegDone,
-              i === step && styles.progressSegNow,
-            ]}
-          />
-        ))}
+      <View style={styles.welcome}>
+        <PoufIdle size={72} />
       </View>
+      <ProgressPips total={TOTAL_STEPS} current={step} />
 
       {step === 0 && (
         <View style={styles.step}>
           <AppText variant="title">What are you training for?</AppText>
-          <View style={styles.titleRule} />
           <AppText variant="body" color={colors.textSecondary}>
             Your goal sets the rep ranges, rest times, and progression style of every generated
             workout.
@@ -140,7 +133,6 @@ export default function Onboarding() {
       {step === 1 && (
         <View style={styles.step}>
           <AppText variant="title">How experienced are you?</AppText>
-          <View style={styles.titleRule} />
           <AppText variant="body" color={colors.textSecondary}>
             This gates exercise difficulty and how aggressively weights progress.
           </AppText>
@@ -160,7 +152,6 @@ export default function Onboarding() {
       {step === 2 && (
         <View style={styles.step}>
           <AppText variant="title">What equipment can you use?</AppText>
-          <View style={styles.titleRule} />
           <AppText variant="body" color={colors.textSecondary}>
             Generated workouts only include exercises you can actually do.
           </AppText>
@@ -176,7 +167,6 @@ export default function Onboarding() {
       {step === 3 && (
         <View style={styles.step}>
           <AppText variant="title">Anything we should work around?</AppText>
-          <View style={styles.titleRule} />
           <AppText variant="body" color={colors.textSecondary}>
             Optional. Selected areas are excluded from generated workouts. This stays on your
             device and your account — nowhere else.
@@ -187,11 +177,10 @@ export default function Onboarding() {
             onToggle={(v) => setAvoidMuscles((prev) => toggle(prev, v))}
             testID="onboarding-avoid"
           />
-          <TextInput
+          <FieldInput
             testID="onboarding-limitations"
             style={styles.input}
             placeholder="Notes for yourself, e.g. 'left shoulder impingement'"
-            placeholderTextColor={colors.textTertiary}
             value={limitations}
             onChangeText={setLimitations}
             accessibilityLabel="Injury or limitation notes"
@@ -202,7 +191,6 @@ export default function Onboarding() {
       {step === 4 && (
         <View style={styles.step}>
           <AppText variant="title">Preferences</AppText>
-          <View style={styles.titleRule} />
           <AppText variant="label" color={colors.textTertiary}>
             Units
           </AppText>
@@ -227,11 +215,10 @@ export default function Onboarding() {
           <AppText variant="label" color={colors.textTertiary}>
             Bodyweight (optional)
           </AppText>
-          <TextInput
+          <FieldInput
             testID="onboarding-bodyweight"
             style={styles.input}
             placeholder={`Current bodyweight in ${unit}`}
-            placeholderTextColor={colors.textTertiary}
             keyboardType="decimal-pad"
             value={bodyweight}
             onChangeText={setBodyweight}
@@ -299,12 +286,12 @@ const OptionCard = ({
         accessibilityRole="radio"
         accessibilityState={{ selected }}
         accessibilityLabel={label}
-        style={[styles.optionCard, selected && styles.optionCardSelected]}
+        style={[styles.optionCard, clay.card, selected && styles.optionCardSelected]}
       >
-        <AppText variant="bodyBold" color={selected ? colors.accent : colors.text}>
+        <AppText variant="bodyBold" color={selected ? colors.onAccent : colors.text}>
           {label}
         </AppText>
-        <AppText variant="caption" color={colors.textSecondary}>
+        <AppText variant="caption" color={selected ? colors.onAccentMuted : colors.textSecondary}>
           {detail}
         </AppText>
       </Pressable>
@@ -313,49 +300,20 @@ const OptionCard = ({
 };
 
 const styles = StyleSheet.create({
-  progressRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-    paddingVertical: spacing.xl,
-  },
-  progressSeg: {
-    flex: 1,
-    height: 2,
-    backgroundColor: colors.border,
-  },
-  progressSegDone: { backgroundColor: colors.accent },
-  progressSegNow: { height: 3, backgroundColor: colors.accent },
-  titleRule: {
-    width: 40,
-    height: 2,
-    backgroundColor: colors.accent,
-  },
-  step: { gap: spacing.md },
+  welcome: { alignItems: 'center', paddingTop: spacing.lg, paddingBottom: spacing.md },
+  step: { gap: spacing.md, marginTop: spacing.lg },
   optionCard: {
     backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.surfaceOutline,
+    borderRadius: radius.lg,
     padding: spacing.lg,
     minHeight: touch.min,
     gap: spacing.xs,
     justifyContent: 'center',
   },
   optionCardSelected: {
-    borderColor: colors.accent,
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: colors.mint,
   },
-  input: {
-    minHeight: touch.min,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    color: colors.text,
-    paddingHorizontal: spacing.lg,
-    fontSize: 16,
-  },
+  input: { minHeight: touch.min },
   nav: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.xxl },
   navButton: { flex: 1 },
 });

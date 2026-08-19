@@ -6,9 +6,10 @@ import { formatWeight } from '@/domain/units';
 import { useSessionStore } from '@/state/sessionStore';
 import { useExerciseLibrary, useProfile, useSessions } from '@/state/queries';
 import { coachNoteForDate, greetingForHour } from '@/ui/coachVoice';
-import { AppText, Button, Card, Screen } from '@/ui/components/primitives';
+import { Callout, PoufIdle } from '@/ui/components/poufKit';
+import { AppText, Blob, Button, Card, Screen, Stat } from '@/ui/components/primitives';
 import { ApexMark, ApexWordmark } from '@/ui/components/wordmark';
-import { colors, radius, spacing } from '@/ui/theme';
+import { colors, spacing } from '@/ui/theme';
 
 /** Home ("Train") — one glance: start training, this week, last workout. */
 export default function Home() {
@@ -38,6 +39,12 @@ export default function Home() {
       <View style={styles.header}>
         <View style={styles.markTexture} pointerEvents="none" accessibilityElementsHidden>
           <ApexMark size={260} />
+        </View>
+        <View style={styles.blobRow} pointerEvents="none">
+          <PoufIdle size={64} />
+          <Blob tone="pink" size={36} bounce delay={0} />
+          <Blob tone="mint" size={28} bounce delay={180} />
+          <Blob tone="yellow" size={22} bounce delay={320} />
         </View>
         <ApexWordmark />
         <AppText variant="display" testID="home-greeting">
@@ -74,58 +81,31 @@ export default function Home() {
         />
       )}
 
-      <Card style={styles.weekCard} testID="home-weekly-summary">
-        <AppText variant="display" color={colors.accent} style={styles.weekFigure}>
-          {leadWithVolume ? volumeText : String(workouts)}
-        </AppText>
-        <AppText variant="body" color={colors.textSecondary}>
-          {leadWithVolume ? 'Volume · This week' : 'Workouts · This week'}
-        </AppText>
-        <View style={styles.weekSupport}>
+      <View style={styles.weekRow} testID="home-weekly-summary">
+        <View style={styles.weekLead}>
+          <Stat
+            label={leadWithVolume ? 'Volume · This week' : 'Workouts · This week'}
+            value={leadWithVolume ? volumeText : String(workouts)}
+            tone="mint"
+          />
+        </View>
+        <View style={styles.weekSupportCol}>
+          <Stat label="min" value={String(minutes)} tone="blue" />
           {leadWithVolume ? (
-            <>
-              <AppText variant="heading">{workouts}</AppText>
-              <AppText variant="caption" color={colors.textSecondary}>
-                {' '}
-                workouts
-              </AppText>
-              <AppText variant="caption" color={colors.textTertiary}>
-                {'  ·  '}
-              </AppText>
-              <AppText variant="heading">{minutes}</AppText>
-              <AppText variant="caption" color={colors.textSecondary}>
-                {' '}
-                min
-              </AppText>
-            </>
+            <AppText variant="caption" color={colors.textSecondary} style={styles.weekAside}>
+              {workouts} workouts
+            </AppText>
           ) : (
-            <>
-              <AppText variant="heading">{minutes}</AppText>
-              <AppText variant="caption" color={colors.textSecondary}>
-                {' '}
-                min
-              </AppText>
-              <AppText variant="caption" color={colors.textTertiary}>
-                {'  ·  '}
-              </AppText>
-              <AppText variant="heading">{volumeText}</AppText>
-              <AppText variant="caption" color={colors.textSecondary}>
-                {' '}
-                volume
-              </AppText>
-            </>
+            <AppText variant="caption" color={colors.textSecondary} style={styles.weekAside}>
+              {volumeText} volume
+            </AppText>
           )}
         </View>
-      </Card>
-
-      <View style={styles.coachChip} testID="home-coach-note">
-        <AppText variant="body" color={colors.textSecondary} style={styles.coachText}>
-          <AppText variant="bodyBold" color={colors.text}>
-            {'Coach\u2019s note. '}
-          </AppText>
-          {coachNoteForDate()}
-        </AppText>
       </View>
+
+      <Callout tone="yellow" title="Coach's note" testID="home-coach-note" style={styles.coach}>
+        {coachNoteForDate()}
+      </Callout>
 
       {lastSession ? (
         <Card style={styles.lastCard} testID="home-last-workout">
@@ -168,20 +148,18 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: -28,
     top: -12,
-    opacity: 0.04,
+    opacity: 0.08,
   },
+  blobRow: { flexDirection: 'row', gap: spacing.sm, alignItems: 'flex-end' },
+  weekRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.lg },
+  weekLead: { flex: 1.4 },
+  weekSupportCol: { flex: 1, gap: spacing.sm },
+  weekAside: { paddingHorizontal: spacing.sm },
   startButton: { minHeight: 72, marginBottom: spacing.lg },
   resumeCard: { gap: spacing.md, marginBottom: spacing.lg, borderColor: colors.active },
   weekCard: { gap: spacing.sm, marginBottom: spacing.lg },
   weekFigure: { letterSpacing: 0.5 },
   weekSupport: { flexDirection: 'row', alignItems: 'baseline', marginTop: spacing.xs },
-  coachChip: {
-    backgroundColor: colors.surfaceRaised,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    marginBottom: spacing.lg,
-  },
-  coachText: { lineHeight: 22 },
+  coach: { marginBottom: spacing.lg },
   lastCard: { gap: spacing.sm, marginBottom: spacing.lg },
 });

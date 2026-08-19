@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { generateWorkout, schemeForGoal, type SessionIntensity } from '@/domain/generation';
 import { bestE1RmByExercise, weeklySetsPerMuscle } from '@/domain/history';
 import { searchExercises } from '@/domain/exerciseSearch';
@@ -8,8 +8,9 @@ import type { Exercise, SessionExercise, WorkoutSession } from '@/domain/types';
 import { formatWeight } from '@/domain/units';
 import { useSessionStore } from '@/state/sessionStore';
 import { useExerciseLibrary, useProfile, useSaveSession, useSessions } from '@/state/queries';
+import { FieldInput } from '@/ui/components/poufKit';
 import { AppText, Button, Card, Screen, SegmentedControl } from '@/ui/components/primitives';
-import { colors, radius, spacing, touch } from '@/ui/theme';
+import { colors, spacing } from '@/ui/theme';
 
 type Mode = 'generate' | 'manual';
 
@@ -125,7 +126,6 @@ export default function NewWorkout() {
         <Button label="‹ Back" variant="ghost" compact onPress={() => router.back()} testID="new-workout-back" />
       </View>
       <AppText variant="title">New workout</AppText>
-      <View style={styles.titleRule} />
 
       <SegmentedControl<Mode>
         options={[
@@ -185,11 +185,10 @@ export default function NewWorkout() {
         </View>
       ) : (
         <View style={styles.section}>
-          <TextInput
+          <FieldInput
             testID="manual-search"
             style={styles.input}
             placeholder="Search exercises to add…"
-            placeholderTextColor={colors.textTertiary}
             value={query}
             onChangeText={setQuery}
             accessibilityLabel="Search exercises to add"
@@ -251,13 +250,6 @@ export default function NewWorkout() {
 
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', paddingVertical: spacing.md },
-  titleRule: {
-    width: 40,
-    height: 2,
-    backgroundColor: colors.accent,
-    marginTop: spacing.sm,
-    marginBottom: spacing.md,
-  },
   section: { gap: spacing.md, marginTop: spacing.lg },
   planCard: { gap: spacing.sm },
   planRow: {
@@ -267,15 +259,6 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   planName: { flex: 1 },
-  input: {
-    minHeight: touch.min,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    color: colors.text,
-    paddingHorizontal: spacing.lg,
-    fontSize: 16,
-  },
+  input: { minHeight: 56 },
   startButton: { marginTop: spacing.xl, minHeight: 64 },
 });

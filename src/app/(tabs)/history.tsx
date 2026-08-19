@@ -1,12 +1,13 @@
 import { useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { consistency, sessionMinutes, sessionVolumeKg, weeklySummaries } from '@/domain/stats';
 import { formatWeight } from '@/domain/units';
 import { useExerciseLibrary, useProfile, useSessions } from '@/state/queries';
+import { ListRow } from '@/ui/components/poufKit';
 import { WeeklyBars } from '@/ui/components/progressChart';
-import { AppText, Card, EmptyState, Screen } from '@/ui/components/primitives';
-import { colors, fonts, spacing } from '@/ui/theme';
+import { AppText, Card, EmptyState, Screen, Stat } from '@/ui/components/primitives';
+import { colors, spacing } from '@/ui/theme';
 
 /** Progress tab: weekly dashboards, consistency, per-exercise trends,
  * and the full workout log. */
@@ -57,13 +58,11 @@ export default function History() {
         <AppText variant="title" style={styles.title}>
           Progress
         </AppText>
-        <View style={styles.titleRule} />
-        <AppText variant="display" color={colors.accent}>
-          {completed.length}
-        </AppText>
-        <AppText variant="caption" color={colors.textSecondary}>
-          {completed.length === 1 ? 'Session in the log' : 'Sessions in the log'}
-        </AppText>
+        <Stat
+          label={completed.length === 1 ? 'Session in the log' : 'Sessions in the log'}
+          value={String(completed.length)}
+          tone="yellow"
+        />
       </View>
 
       <Card style={styles.heroCard} testID="history-consistency">
@@ -93,19 +92,14 @@ export default function History() {
       </AppText>
       <View style={styles.logList}>
         {trainedExerciseIds.slice(0, 6).map((exerciseId) => (
-          <Pressable
+          <ListRow
             key={exerciseId}
             testID={`history-trend-${exerciseId}`}
-            accessibilityRole="button"
+            title={byId[exerciseId]?.name ?? exerciseId}
+            subtitle="View trend"
             accessibilityLabel={`${byId[exerciseId]?.name ?? exerciseId} progression`}
             onPress={() => router.push(`/progress/${exerciseId}`)}
-            style={({ pressed }) => [styles.logRow, pressed && styles.rowPressed]}
-          >
-            <AppText variant="bodyBold">{byId[exerciseId]?.name ?? exerciseId}</AppText>
-            <AppText variant="caption" color={colors.accent}>
-              View trend →
-            </AppText>
-          </Pressable>
+          />
         ))}
       </View>
 
@@ -114,27 +108,15 @@ export default function History() {
       </AppText>
       <View style={styles.logList}>
         {completed.map((session) => (
-          <Pressable
+          <ListRow
             key={session.id}
             testID={`history-session-${session.id}`}
-            accessibilityRole="button"
+            title={session.name}
+            subtitle={`${sessionMinutes(session)} min · ${formatWeight(sessionVolumeKg(session), unit)} total`}
+            meta={session.startedAt.slice(0, 10)}
             accessibilityLabel={`Workout ${session.name} on ${session.startedAt.slice(0, 10)}`}
             onPress={() => router.push(`/session/${session.id}`)}
-            style={({ pressed }) => [styles.sessionRow, pressed && styles.rowPressed]}
-          >
-            <AppText variant="caption" color={colors.accent} style={styles.sessionDate}>
-              {session.startedAt.slice(0, 10)}
-            </AppText>
-            <View style={styles.sessionMain}>
-              <AppText variant="bodyBold">{session.name}</AppText>
-              <AppText variant="caption" color={colors.textSecondary}>
-                {sessionMinutes(session)} min · {formatWeight(sessionVolumeKg(session), unit)} total
-              </AppText>
-            </View>
-            <AppText variant="body" color={colors.textTertiary}>
-              ›
-            </AppText>
-          </Pressable>
+          />
         ))}
       </View>
     </Screen>
@@ -143,35 +125,9 @@ export default function History() {
 
 const styles = StyleSheet.create({
   title: { paddingTop: spacing.xl },
-  masthead: { gap: spacing.sm, marginBottom: spacing.xl },
-  titleRule: {
-    width: 40,
-    height: 2,
-    backgroundColor: colors.accent,
-  },
+  masthead: { gap: spacing.md, marginBottom: spacing.xl },
   heroCard: { gap: spacing.sm, marginBottom: spacing.xl },
   volumeBlock: { gap: spacing.sm, marginBottom: spacing.lg },
   sectionTitle: { marginTop: spacing.lg, marginBottom: spacing.sm },
-  logList: { gap: 0 },
-  logRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.surfaceOutline,
-    minHeight: 56,
-  },
-  sessionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.surfaceOutline,
-    minHeight: 64,
-    gap: spacing.md,
-  },
-  sessionDate: { fontFamily: fonts.display, letterSpacing: 0.5, minWidth: 88 },
-  sessionMain: { flex: 1, gap: spacing.xs },
-  rowPressed: { backgroundColor: colors.surfacePressed },
+  logList: { gap: spacing.sm },
 });

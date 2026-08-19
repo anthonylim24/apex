@@ -1,10 +1,11 @@
 import { useSignIn, useSignUp } from '@clerk/clerk-expo';
 import { Redirect, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { clerkPublishableKey, useAuthSession } from '@/auth/auth';
+import { FieldInput, PoufIdle } from '@/ui/components/poufKit';
 import { AppText, Button, Screen, SegmentedControl } from '@/ui/components/primitives';
-import { colors, radius, spacing, touch } from '@/ui/theme';
+import { colors, spacing } from '@/ui/theme';
 
 type Mode = 'signIn' | 'signUp';
 
@@ -71,7 +72,8 @@ function ClerkSignIn() {
   return (
     <Screen testID="sign-in-screen">
       <View style={styles.header}>
-        <AppText variant="display" color={colors.accent}>
+        <PoufIdle size={88} />
+        <AppText variant="display" color={colors.mint}>
           Apex
         </AppText>
         <AppText variant="body" color={colors.textSecondary}>
@@ -96,11 +98,10 @@ function ClerkSignIn() {
       <View style={styles.form}>
         {!pendingCode ? (
           <>
-            <TextInput
+            <FieldInput
               testID="sign-in-email"
               style={styles.input}
               placeholder="Email"
-              placeholderTextColor={colors.textTertiary}
               autoCapitalize="none"
               autoComplete="email"
               keyboardType="email-address"
@@ -108,11 +109,10 @@ function ClerkSignIn() {
               onChangeText={setEmail}
               accessibilityLabel="Email"
             />
-            <TextInput
+            <FieldInput
               testID="sign-in-password"
               style={styles.input}
               placeholder="Password"
-              placeholderTextColor={colors.textTertiary}
               secureTextEntry
               autoComplete={mode === 'signIn' ? 'password' : 'new-password'}
               value={password}
@@ -121,11 +121,10 @@ function ClerkSignIn() {
             />
           </>
         ) : (
-          <TextInput
+          <FieldInput
             testID="sign-in-code"
             style={styles.input}
             placeholder="Verification code from your email"
-            placeholderTextColor={colors.textTertiary}
             keyboardType="number-pad"
             value={code}
             onChangeText={setCode}
@@ -154,17 +153,8 @@ function ClerkSignIn() {
 }
 
 const styles = StyleSheet.create({
-  header: { paddingVertical: spacing.xxxl, gap: spacing.sm },
+  header: { paddingVertical: spacing.xxxl, gap: spacing.sm, alignItems: 'flex-start' },
   form: { marginTop: spacing.xl, gap: spacing.md },
-  input: {
-    minHeight: touch.min,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    color: colors.text,
-    paddingHorizontal: spacing.lg,
-    fontSize: 16,
-  },
+  input: { minHeight: 56 },
   privacy: { marginTop: spacing.md, lineHeight: 18 },
 });
