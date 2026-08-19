@@ -126,6 +126,7 @@ export const RestTimerOverlay = ({
         <Button
           label="−15s"
           variant="secondary"
+          size="md"
           onPress={() => onAdjust(-15)}
           style={styles.controlButton}
           testID={`${testID}-minus`}
@@ -133,13 +134,15 @@ export const RestTimerOverlay = ({
         <Button
           label="+15s"
           variant="secondary"
+          size="md"
           onPress={() => onAdjust(15)}
           style={styles.controlButton}
           testID={`${testID}-plus`}
         />
         <Button
-          label="Skip"
+          label="Skip rest"
           variant="primary"
+          size="lg"
           onPress={onSkip}
           style={styles.controlButton}
           testID={`${testID}-skip`}
@@ -162,6 +165,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  controls: { flexDirection: 'row', gap: spacing.sm, alignSelf: 'stretch' },
+  controls: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    alignSelf: 'stretch',
+    alignItems: 'flex-end',
+  },
   controlButton: { flex: 1 },
 });

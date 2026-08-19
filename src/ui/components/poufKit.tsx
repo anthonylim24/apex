@@ -281,6 +281,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
+    paddingBottom: spacing.md + 6,
     minHeight: 64,
     gap: spacing.md,
   },

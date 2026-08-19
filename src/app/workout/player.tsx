@@ -315,6 +315,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.sm,
     paddingTop: spacing.md,
+    alignItems: 'flex-end',
   },
   footerButton: { flex: 1 },
 });

@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { LibraryTabIcon, ProfileTabIcon, ProgressTabIcon, TrainTabIcon } from '@/ui/components/tabIcons';
+import { clay } from '@/ui/clay';
 import { colors, fonts } from '@/ui/theme';
 
 export default function TabsLayout() {
@@ -10,9 +11,10 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarStyle: {
           backgroundColor: colors.surface,
-          borderTopColor: colors.border,
-          height: 72,
-          paddingTop: 8,
+          borderTopWidth: 0,
+          height: 76,
+          paddingTop: 10,
+          ...clay.dock,
         },
         tabBarActiveTintColor: colors.mint,
         tabBarInactiveTintColor: colors.textTertiary,

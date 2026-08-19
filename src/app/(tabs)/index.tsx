@@ -9,6 +9,7 @@ import { coachNoteForDate, greetingForHour } from '@/ui/coachVoice';
 import { Callout, PoufIdle } from '@/ui/components/poufKit';
 import { AppText, Blob, Button, Card, Screen, Stat } from '@/ui/components/primitives';
 import { ApexMark, ApexWordmark } from '@/ui/components/wordmark';
+import { clay } from '@/ui/clay';
 import { colors, spacing } from '@/ui/theme';
 
 /** Home ("Train") — one glance: start training, this week, last workout. */
@@ -138,7 +139,7 @@ export default function Home() {
 const styles = StyleSheet.create({
   header: {
     position: 'relative',
-    overflow: 'hidden',
+    overflow: 'visible',
     paddingVertical: spacing.xl,
     paddingBottom: spacing.xxl,
     gap: spacing.sm,
@@ -151,7 +152,7 @@ const styles = StyleSheet.create({
     opacity: 0.08,
   },
   blobRow: { flexDirection: 'row', gap: spacing.sm, alignItems: 'flex-end' },
-  weekRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.lg },
+  weekRow: { flexDirection: 'row', gap: clay.gutter, marginBottom: spacing.lg },
   weekLead: { flex: 1.4 },
   weekSupportCol: { flex: 1, gap: spacing.sm },
   weekAside: { paddingHorizontal: spacing.sm },

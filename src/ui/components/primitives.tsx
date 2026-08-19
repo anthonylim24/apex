@@ -48,6 +48,7 @@ export const AppText = ({
 );
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
+export type ButtonSize = 'lg' | 'md' | 'sm';
 
 const buttonTone: Record<ButtonVariant, { bg: string; text: string }> = {
   primary: { bg: colors.mint, text: colors.onAccent },
@@ -56,10 +57,20 @@ const buttonTone: Record<ButtonVariant, { bg: string; text: string }> = {
   danger: { bg: colors.pink, text: colors.onAccent },
 };
 
+const sizeForVariant: Record<ButtonVariant, ButtonSize> = {
+  primary: 'lg',
+  secondary: 'md',
+  danger: 'md',
+  ghost: 'sm',
+};
+
+const SINK: Record<ButtonSize, number> = { lg: 7, md: 4, sm: 3 };
+
 export const Button = ({
   label,
   onPress,
   variant = 'primary',
+  size,
   disabled = false,
   loading = false,
   compact = false,
@@ -70,6 +81,7 @@ export const Button = ({
   label: string;
   onPress: () => void;
   variant?: ButtonVariant;
+  size?: ButtonSize;
   disabled?: boolean;
   loading?: boolean;
   compact?: boolean;
@@ -78,6 +90,7 @@ export const Button = ({
   accessibilityHint?: string;
 }) => {
   const palette = buttonTone[variant];
+  const weight: ButtonSize = compact ? 'sm' : (size ?? sizeForVariant[variant]);
   const reducedMotion = useReducedMotion();
   const sink = useSharedValue(0);
   const animatedStyle = useAnimatedStyle(() => ({
@@ -93,9 +106,10 @@ export const Button = ({
   };
 
   const isQuiet = variant === 'ghost';
+  const cushion = weight === 'lg' ? clay.controlLg : clay.control;
 
   return (
-    <Animated.View style={[animatedStyle, style]}>
+    <Animated.View style={[animatedStyle, !isQuiet && cushion, style]}>
       <Pressable
         testID={testID}
         accessibilityRole="button"
@@ -104,23 +118,40 @@ export const Button = ({
         accessibilityState={{ disabled: disabled || loading }}
         disabled={disabled || loading}
         onPress={onPress}
-        onPressIn={() => springTo(3)}
+        onPressIn={() => springTo(SINK[weight])}
         onPressOut={() => springTo(0)}
         hitSlop={touch.hitSlop}
         style={({ pressed }) => [
           styles.button,
-          compact && styles.buttonCompact,
-          isQuiet ? styles.buttonQuiet : clay.control,
+          weight === 'lg' && styles.buttonLg,
+          weight === 'md' && styles.buttonMd,
+          weight === 'sm' && styles.buttonSm,
+          isQuiet && styles.buttonQuiet,
           { backgroundColor: isQuiet ? 'transparent' : palette.bg },
           pressed && !isQuiet ? clay.controlActive : null,
           (disabled || loading) && styles.buttonDisabled,
           sprungMinHeight != null ? { minHeight: sprungMinHeight } : null,
         ]}
       >
+        {!isQuiet ? (
+          <View
+            style={[styles.buttonShine, weight === 'lg' && styles.buttonShineLg]}
+            pointerEvents="none"
+          />
+        ) : null}
         {loading ? (
           <ActivityIndicator color={palette.text} />
         ) : (
-          <AppText variant="bodyBold" color={palette.text} style={styles.buttonLabel}>
+          <AppText
+            variant="bodyBold"
+            color={palette.text}
+            style={[
+              styles.buttonLabel,
+              weight === 'lg' && styles.buttonLabelLg,
+              weight === 'md' && styles.buttonLabelMd,
+              weight === 'sm' && styles.buttonLabelSm,
+            ]}
+          >
             {label}
           </AppText>
         )}
@@ -139,6 +170,7 @@ export const Card = ({
   testID?: string;
 }) => (
   <View testID={testID} style={[styles.card, clay.card, style]}>
+    <View style={styles.cardShine} pointerEvents="none" />
     <View style={styles.cardLip} pointerEvents="none" />
     {children}
   </View>
@@ -399,17 +431,15 @@ export function ChipRow<T extends string>({
 
 const styles = StyleSheet.create({
   button: {
-    minHeight: touch.min,
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.xl,
+    overflow: 'hidden',
   },
-  buttonCompact: {
-    minHeight: 44,
-    paddingHorizontal: spacing.lg,
-    borderRadius: 16,
-  },
+  buttonLg: { minHeight: 72, paddingHorizontal: spacing.xxl },
+  buttonMd: { minHeight: 52, paddingHorizontal: spacing.xl },
+  buttonSm: { minHeight: 44, paddingHorizontal: spacing.lg, borderRadius: 16 },
   buttonQuiet: {
     backgroundColor: 'transparent',
     borderWidth: 2,
@@ -417,11 +447,34 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: { opacity: 0.45 },
   buttonLabel: { fontFamily: type.bodyBold.fontFamily, fontWeight: '800' },
+  buttonLabelLg: { fontSize: 18, fontWeight: '800' },
+  buttonLabelMd: { fontSize: 15, fontWeight: '800' },
+  buttonLabelSm: { fontSize: 13, fontWeight: '800' },
+  buttonShine: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 6,
+    backgroundColor: 'rgba(255,255,255,0.38)',
+  },
+  buttonShineLg: { height: 9, backgroundColor: 'rgba(255,255,255,0.46)' },
   card: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
     padding: spacing.xl,
-    overflow: 'hidden',
+    paddingBottom: spacing.xl + 10,
+    marginBottom: 4,
+  },
+  cardShine: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 7,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
   },
   cardLip: {
     position: 'absolute',
@@ -429,7 +482,9 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     height: 10,
-    backgroundColor: 'rgba(156, 124, 220, 0.16)',
+    backgroundColor: 'rgba(156, 124, 220, 0.22)',
+    borderBottomLeftRadius: radius.lg,
+    borderBottomRightRadius: radius.lg,
   },
   screenLight: {
     position: 'absolute',
@@ -450,8 +505,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
     padding: spacing.lg,
+    paddingBottom: spacing.lg + 10,
     gap: spacing.xs,
-    overflow: 'hidden',
   },
   screen: { flex: 1, backgroundColor: colors.bg },
   empty: { alignItems: 'center', paddingVertical: spacing.xxxl, paddingHorizontal: spacing.xl, gap: spacing.md },

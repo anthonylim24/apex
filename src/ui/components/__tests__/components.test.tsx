@@ -70,6 +70,32 @@ describe('RpePicker', () => {
     await fireEvent.press(screen.getByTestId('rir-2'));
     expect(onChange).toHaveBeenCalledWith(2);
   });
+
+  it('steps through the RPE scale and can clear', async () => {
+    const onChange = jest.fn();
+    const Harness = () => {
+      const [value, setValue] = React.useState<number | undefined>(undefined);
+      return (
+        <RpePicker
+          mode="rpe"
+          value={value}
+          onChange={(next) => {
+            onChange(next);
+            setValue(next);
+          }}
+          testID="rpe"
+        />
+      );
+    };
+    await render(<Harness />);
+    await fireEvent.press(screen.getByTestId('rpe-increment'));
+    expect(onChange).toHaveBeenLastCalledWith(6);
+    await fireEvent.press(screen.getByTestId('rpe-increment'));
+    expect(onChange).toHaveBeenLastCalledWith(7);
+    await fireEvent.press(screen.getByTestId('rpe-decrement'));
+    await fireEvent.press(screen.getByTestId('rpe-decrement'));
+    expect(onChange).toHaveBeenLastCalledWith(undefined);
+  });
 });
 
 describe('ExerciseCard', () => {

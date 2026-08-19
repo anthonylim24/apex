@@ -4,7 +4,7 @@ import * as Haptics from 'expo-haptics';
 import type { SetLog, Unit } from '../../domain/types';
 import { formatWeight, toDisplayWeight } from '../../domain/units';
 import { clay } from '../clay';
-import { colors, radius, spacing, touch } from '../theme';
+import { colors, radius, spacing } from '../theme';
 import { AppText, Button } from './primitives';
 import { RpePicker } from './rpePicker';
 import { Stepper } from './stepper';
@@ -197,5 +197,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  logButton: { minHeight: touch.setLogger },
+  logButton: { minHeight: 72 },
 });

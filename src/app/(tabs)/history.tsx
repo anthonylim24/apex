@@ -7,6 +7,7 @@ import { useExerciseLibrary, useProfile, useSessions } from '@/state/queries';
 import { ListRow } from '@/ui/components/poufKit';
 import { WeeklyBars } from '@/ui/components/progressChart';
 import { AppText, Card, EmptyState, Screen, Stat } from '@/ui/components/primitives';
+import { clay } from '@/ui/clay';
 import { colors, spacing } from '@/ui/theme';
 
 /** Progress tab: weekly dashboards, consistency, per-exercise trends,
@@ -129,5 +130,5 @@ const styles = StyleSheet.create({
   heroCard: { gap: spacing.sm, marginBottom: spacing.xl },
   volumeBlock: { gap: spacing.sm, marginBottom: spacing.lg },
   sectionTitle: { marginTop: spacing.lg, marginBottom: spacing.sm },
-  logList: { gap: spacing.sm },
+  logList: { gap: clay.gutter },
 });

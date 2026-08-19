@@ -260,5 +260,5 @@ const styles = StyleSheet.create({
   },
   planName: { flex: 1 },
   input: { minHeight: 56 },
-  startButton: { marginTop: spacing.xl, minHeight: 64 },
+  startButton: { marginTop: spacing.xl, minHeight: 72 },
 });

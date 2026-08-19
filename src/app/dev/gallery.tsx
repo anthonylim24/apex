@@ -107,7 +107,7 @@ export default function Gallery() {
         </Card>
       </Section>
 
-      <Section title="RPE picker (with plain-language cues)" testID="gallery-rpe">
+      <Section title="RPE stepper (with plain-language cues)" testID="gallery-rpe">
         <Card>
           <RpePicker mode="rpe" value={rpe} onChange={setRpe} />
         </Card>

@@ -8,6 +8,7 @@ import { useExerciseLibrary, useFavorites, useToggleFavorite } from '@/state/que
 import { ExerciseCard } from '@/ui/components/exerciseCard';
 import { FieldInput } from '@/ui/components/poufKit';
 import { AppText, Button, Card, ChipRow, EmptyState } from '@/ui/components/primitives';
+import { clay } from '@/ui/clay';
 import { colors, spacing } from '@/ui/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -208,5 +209,10 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   listFlex: { flex: 1 },
-  list: { paddingHorizontal: spacing.lg, gap: spacing.xs, paddingBottom: spacing.xxxl, paddingTop: spacing.sm },
+  list: {
+    paddingHorizontal: spacing.lg,
+    gap: clay.gutter,
+    paddingBottom: spacing.xxxl,
+    paddingTop: spacing.sm,
+  },
 });

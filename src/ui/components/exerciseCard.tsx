@@ -72,6 +72,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
     padding: spacing.lg,
+    paddingBottom: spacing.lg + 6,
     minHeight: touch.min + 16,
     gap: spacing.md,
   },

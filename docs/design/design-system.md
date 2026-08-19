@@ -7,7 +7,7 @@ motivating but not distracting.**
 Visual world: **1st-Pouf dark clay** (https://1st-pouf.worksonmy.dev) — plum-black cushions,
 pastel accents (mint / pink / purple / blue / yellow / orange), Nunito UI + Anton numerals.
 Depth is the affordance: buttons press in, cards have a floor lip. Exercise demos are Pouf Pal
-clay stills with a 2.4s squash/stretch. Gym rules (56–64pt, reduce-motion, SetLogger speed) stay.
+clay clips (web) or a 2.4s squash/stretch still (native / reduce-motion). Gym rules (56–64pt, reduce-motion, SetLogger speed) stay.
 
 ## 1. Color
 
@@ -74,16 +74,19 @@ The one component executed 15–25× per session. Spec:
 - Weight stepper: 64 pt ± buttons, step = smallest real increment for the exercise's equipment
   in the user's unit (barbell 2.5 kg / 5 lb, dumbbell 2 kg, machine pin 2.5 kg).
 - Reps stepper: step 1, floor 0 (0 reps cannot be logged).
-- Effort picker: RPE (6–10 incl. halves) or RIR (0–5), optional, one-tap toggle off, helper text
-  translates the number ("Hard — 2 reps left").
+- Effort stepper: same 64 pt ± language as weight/reps, plus a pouf slider track. RPE (6–10 incl.
+  halves) or RIR (0–5), optional — step off the low end or tap the selected tick to clear. Helper
+  text translates the number ("Hard — 2 reps left"). Tick testIDs stay (`set-logger-effort-8`).
+- Button hierarchy: primary actions are `lg` (72 pt, 18 px), secondary/danger are `md` (52 pt),
+  ghost/compact are `sm` (44 pt). Skip rest / Log set / Start workout sit in the large tier.
 - Tag row: Warm-up / To failure / Drop set — one-tap switches, color + label state.
-- LOG SET: 64 pt primary button; success haptic; disabled only when reps = 0.
+- LOG SET: 72 pt primary button; success haptic; disabled only when reps = 0.
 - Prefill: current-session last set > last-session matching set > prescription target.
 
 ### RestTimerOverlay
 Replaces the logger between sets (single-focus, glanceable). 220 pt progress ring with a
-rest-cyan → lime gradient stroke and rounded caps, 68 pt Anton m:ss numerals, −15 s / +15 s /
-Skip (all ≥ 56 pt). Final 10 s: "Almost go" + optional ring breathe. Shows "Next: …" so the
+rest-cyan → lime gradient stroke and rounded caps, 68 pt Anton m:ss numerals, −15 s / +15 s
+(secondary `md`) and Skip rest (primary `lg`). Final 10 s: "Almost go" + optional ring breathe. Shows "Next: …" so the
 lifter can pre-plan. Wall-clock anchored — survives navigation, backgrounding, re-render.
 
 ### ExerciseCard
@@ -127,7 +130,7 @@ lifting. The implemented personality layer (`src/ui/coachVoice.ts` + components)
 | Home header | Apex wordmark + Pouf Pal idle + bouncing pastel Blobs | Idle browsing moment |
 | Home card | Daily "Coach's note" on a yellow Callout — rotates by calendar day | Educates; never nags |
 | Library cards | PoseGlyph + clay row + tone badges | Catalog identity |
-| Exercise detail | Pouf Pal clay still with a 2.4 s character loop at coached tempo | Educational motion, reduce-motion aware |
+| Exercise detail | Pouf Pal clip of the pattern (web) or still + 2.4 s loop | Educational motion, reduce-motion aware |
 | Rest timer | Ring warms blue → mint ("Almost go"); one rotating coach line per set | Rest is the one idle moment mid-workout |
 | New PR | Pastel confetti burst + yellow clay medal | Earned, brief, honest |
 | Empty states | Resting Pouf Pal still | Warmth without branded mascots |

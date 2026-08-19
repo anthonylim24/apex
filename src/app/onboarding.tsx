@@ -301,7 +301,7 @@ const OptionCard = ({
 
 const styles = StyleSheet.create({
   welcome: { alignItems: 'center', paddingTop: spacing.lg, paddingBottom: spacing.md },
-  step: { gap: spacing.md, marginTop: spacing.lg },
+  step: { gap: clay.gutter, marginTop: spacing.lg },
   optionCard: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
@@ -314,6 +314,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.mint,
   },
   input: { minHeight: touch.min },
-  nav: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.xxl },
+  nav: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.xxl, alignItems: 'flex-end' },
   navButton: { flex: 1 },
 });
