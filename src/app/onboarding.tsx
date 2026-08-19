@@ -1,6 +1,12 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 import { useAuthSession } from '@/auth/auth';
 import type { Equipment, ExperienceLevel, Goal, MuscleGroup, Profile, Unit } from '@/domain/types';
 import { useSaveProfile } from '@/state/queries';
@@ -44,6 +50,8 @@ const AVOIDABLE: { value: MuscleGroup; label: string }[] = [
 const SESSION_LENGTHS = [30, 45, 60, 75, 90];
 
 const TOTAL_STEPS = 5;
+
+const SELECT_SPRING = { damping: 18, stiffness: 420, mass: 0.35 } as const;
 
 /**
  * Onboarding wizard. Why each question is asked is stated on-screen —
@@ -95,15 +103,23 @@ export default function Onboarding() {
 
   return (
     <Screen testID="onboarding-screen">
-      <View style={styles.progressRow}>
+      <View style={styles.progressRow} accessibilityRole="progressbar">
         {Array.from({ length: TOTAL_STEPS }, (_, i) => (
-          <View key={i} style={[styles.progressDot, i <= step && styles.progressDotActive]} />
+          <View
+            key={i}
+            style={[
+              styles.progressSeg,
+              i < step && styles.progressSegDone,
+              i === step && styles.progressSegNow,
+            ]}
+          />
         ))}
       </View>
 
       {step === 0 && (
         <View style={styles.step}>
           <AppText variant="title">What are you training for?</AppText>
+          <View style={styles.titleRule} />
           <AppText variant="body" color={colors.textSecondary}>
             Your goal sets the rep ranges, rest times, and progression style of every generated
             workout.
@@ -124,6 +140,7 @@ export default function Onboarding() {
       {step === 1 && (
         <View style={styles.step}>
           <AppText variant="title">How experienced are you?</AppText>
+          <View style={styles.titleRule} />
           <AppText variant="body" color={colors.textSecondary}>
             This gates exercise difficulty and how aggressively weights progress.
           </AppText>
@@ -143,6 +160,7 @@ export default function Onboarding() {
       {step === 2 && (
         <View style={styles.step}>
           <AppText variant="title">What equipment can you use?</AppText>
+          <View style={styles.titleRule} />
           <AppText variant="body" color={colors.textSecondary}>
             Generated workouts only include exercises you can actually do.
           </AppText>
@@ -158,6 +176,7 @@ export default function Onboarding() {
       {step === 3 && (
         <View style={styles.step}>
           <AppText variant="title">Anything we should work around?</AppText>
+          <View style={styles.titleRule} />
           <AppText variant="body" color={colors.textSecondary}>
             Optional. Selected areas are excluded from generated workouts. This stays on your
             device and your account — nowhere else.
@@ -183,6 +202,7 @@ export default function Onboarding() {
       {step === 4 && (
         <View style={styles.step}>
           <AppText variant="title">Preferences</AppText>
+          <View style={styles.titleRule} />
           <AppText variant="label" color={colors.textTertiary}>
             Units
           </AppText>
@@ -255,50 +275,77 @@ const OptionCard = ({
   selected: boolean;
   onPress: () => void;
   testID?: string;
-}) => (
-  <View>
-    <AppText
-      testID={testID}
-      onPress={onPress}
-      accessibilityRole="radio"
-      accessibilityState={{ selected }}
-      style={[styles.optionCard, selected && styles.optionCardSelected]}
-    >
-      <AppText variant="bodyBold" color={selected ? colors.accent : colors.text}>
-        {label}
-        {'\n'}
-      </AppText>
-      <AppText variant="caption" color={colors.textSecondary}>
-        {detail}
-      </AppText>
-    </AppText>
-  </View>
-);
+}) => {
+  const reducedMotion = useReducedMotion();
+  const scale = useSharedValue(1);
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const springTo = (next: number) => {
+    if (reducedMotion) return;
+    // Reanimated shared values are mutated via `.value`; that is the API.
+    // eslint-disable-next-line react-hooks/immutability -- SharedValue
+    scale.value = withSpring(next, SELECT_SPRING);
+  };
+
+  return (
+    <Animated.View style={animatedStyle}>
+      <Pressable
+        testID={testID}
+        onPress={onPress}
+        onPressIn={() => springTo(0.97)}
+        onPressOut={() => springTo(1)}
+        accessibilityRole="radio"
+        accessibilityState={{ selected }}
+        accessibilityLabel={label}
+        style={[styles.optionCard, selected && styles.optionCardSelected]}
+      >
+        <AppText variant="bodyBold" color={selected ? colors.accent : colors.text}>
+          {label}
+        </AppText>
+        <AppText variant="caption" color={colors.textSecondary}>
+          {detail}
+        </AppText>
+      </Pressable>
+    </Animated.View>
+  );
+};
 
 const styles = StyleSheet.create({
   progressRow: {
     flexDirection: 'row',
-    gap: spacing.sm,
+    alignItems: 'center',
+    gap: 2,
     paddingVertical: spacing.xl,
   },
-  progressDot: {
+  progressSeg: {
     flex: 1,
-    height: 4,
-    borderRadius: radius.full,
-    backgroundColor: colors.surfaceRaised,
+    height: 2,
+    backgroundColor: colors.border,
   },
-  progressDotActive: { backgroundColor: colors.accent },
+  progressSegDone: { backgroundColor: colors.accent },
+  progressSegNow: { height: 3, backgroundColor: colors.accent },
+  titleRule: {
+    width: 40,
+    height: 2,
+    backgroundColor: colors.accent,
+  },
   step: { gap: spacing.md },
   optionCard: {
     backgroundColor: colors.surface,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.surfaceOutline,
     padding: spacing.lg,
     minHeight: touch.min,
-    overflow: 'hidden',
+    gap: spacing.xs,
+    justifyContent: 'center',
   },
-  optionCardSelected: { borderColor: colors.accent, backgroundColor: colors.surfaceRaised },
+  optionCardSelected: {
+    borderColor: colors.accent,
+    backgroundColor: colors.surfaceRaised,
+  },
   input: {
     minHeight: touch.min,
     borderRadius: radius.md,

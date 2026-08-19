@@ -87,30 +87,45 @@ export default function ProfileScreen() {
     setBodyweightInput('');
   };
 
+  const goalLabel = GOALS.find((g) => g.value === p.goal)?.label ?? p.goal;
+  const experienceLabel = EXPERIENCE.find((e) => e.value === p.experience)?.label ?? p.experience;
+
   return (
     <Screen testID="profile-screen">
-      <AppText variant="title" style={styles.title}>
-        Profile
-      </AppText>
+      <View style={styles.masthead}>
+        <AppText variant="title" style={styles.title}>
+          Profile
+        </AppText>
+        <View style={styles.titleRule} />
+      </View>
 
-      <Card style={styles.card} testID="profile-sync">
-        <AppText variant="label" color={colors.textTertiary}>
-          Data & sync
-        </AppText>
-        <AppText variant="body" color={colors.textSecondary}>
-          {auth.mode === 'clerk'
-            ? 'Signed in — your data syncs to your private account.'
-            : 'Local mode — all data stays on this device. Configure Clerk + Supabase to enable account sync.'}
-        </AppText>
-        <AppText variant="caption" color={pending > 0 ? colors.warning : colors.success} testID="profile-pending">
-          {pending > 0 ? `${pending} change${pending === 1 ? '' : 's'} waiting to sync` : 'All changes saved'}
-        </AppText>
+      <View style={styles.syncStrip} testID="profile-sync">
+        <View style={styles.syncCopy}>
+          <AppText variant="caption" color={colors.textSecondary}>
+            {auth.mode === 'clerk'
+              ? 'Signed in — your data syncs to your private account.'
+              : 'Local mode — all data stays on this device. Configure Clerk + Supabase to enable account sync.'}
+          </AppText>
+          <AppText
+            variant="caption"
+            color={pending > 0 ? colors.warning : colors.success}
+            testID="profile-pending"
+          >
+            {pending > 0
+              ? `${pending} change${pending === 1 ? '' : 's'} waiting to sync`
+              : 'All changes saved'}
+          </AppText>
+        </View>
         {auth.mode === 'clerk' ? (
           <Button label="Sign out" variant="danger" compact onPress={() => void auth.signOut()} />
         ) : null}
-      </Card>
+      </View>
 
-      <Card style={styles.card}>
+      <Card style={styles.identityCard}>
+        <AppText variant="display">{goalLabel}</AppText>
+        <AppText variant="caption" color={colors.textSecondary}>
+          {experienceLabel} · {p.preferredSessionMinutes} min sessions
+        </AppText>
         <AppText variant="label" color={colors.textTertiary}>
           Goal
         </AppText>
@@ -124,6 +139,9 @@ export default function ProfileScreen() {
           onChange={(experience) => update({ experience })}
           testID="profile-experience"
         />
+      </Card>
+
+      <View style={styles.prefsBlock}>
         <AppText variant="label" color={colors.textTertiary}>
           Units
         </AppText>
@@ -145,9 +163,9 @@ export default function ProfileScreen() {
           onChange={(v) => update({ preferredSessionMinutes: Number(v) })}
           testID="profile-session-length"
         />
-      </Card>
+      </View>
 
-      <Card style={styles.card}>
+      <View style={styles.prefsBlock}>
         <AppText variant="label" color={colors.textTertiary}>
           Equipment
         </AppText>
@@ -163,15 +181,18 @@ export default function ProfileScreen() {
           }
           testID="profile-equipment"
         />
-      </Card>
+      </View>
 
-      <Card style={styles.card} testID="profile-bodyweight">
-        <AppText variant="label" color={colors.textTertiary}>
-          Bodyweight
-        </AppText>
+      <Card style={styles.bodyweightCard} testID="profile-bodyweight">
+        <AppText variant="heading">Bodyweight</AppText>
         {p.bodyweightHistory.length > 0 ? (
           <AppText variant="body" color={colors.textSecondary}>
-            Latest: {Math.round((p.unit === 'kg' ? 1 : 1 / 0.45359237) * p.bodyweightHistory[p.bodyweightHistory.length - 1].weightKg * 10) / 10}{' '}
+            Latest:{' '}
+            {Math.round(
+              (p.unit === 'kg' ? 1 : 1 / 0.45359237) *
+                p.bodyweightHistory[p.bodyweightHistory.length - 1].weightKg *
+                10,
+            ) / 10}{' '}
             {p.unit} on {p.bodyweightHistory[p.bodyweightHistory.length - 1].date}
           </AppText>
         ) : (
@@ -205,8 +226,27 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  title: { paddingVertical: spacing.xl },
-  card: { gap: spacing.md, marginBottom: spacing.lg },
+  title: { paddingTop: spacing.xl },
+  masthead: { gap: spacing.sm, marginBottom: spacing.lg },
+  titleRule: {
+    width: 40,
+    height: 2,
+    backgroundColor: colors.accent,
+  },
+  syncStrip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    backgroundColor: colors.surfaceRaised,
+    borderRadius: radius.md,
+    marginBottom: spacing.xl,
+  },
+  syncCopy: { flex: 1, gap: spacing.xs },
+  identityCard: { gap: spacing.md, marginBottom: spacing.xl },
+  prefsBlock: { gap: spacing.sm, marginBottom: spacing.xl },
+  bodyweightCard: { gap: spacing.md, marginBottom: spacing.lg },
   bodyweightRow: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center' },
   input: {
     flex: 1,

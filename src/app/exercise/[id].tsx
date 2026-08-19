@@ -11,8 +11,8 @@ import { ProgressChart } from '@/ui/components/progressChart';
 import { AppText, Badge, Button, Card, Screen } from '@/ui/components/primitives';
 import { colors, spacing } from '@/ui/theme';
 
-/** Exercise detail: education first — what it is, how to do it, what it
- * trains — plus your own progression on it. */
+/** Exercise detail: demonstration first, then the Anton title lockup,
+ * what it is, how to do it, what it trains, and your progression. */
 export default function ExerciseDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -52,6 +52,14 @@ export default function ExerciseDetail() {
         />
       </View>
 
+      <Card style={styles.hero} testID="exercise-demo">
+        <ExerciseAnimation
+          pattern={exercise.movementPattern}
+          equipment={exercise.equipment}
+          caption={`${formatMuscle(exercise.movementPattern)} pattern · coached tempo`}
+        />
+      </Card>
+
       <AppText variant="title" testID="exercise-name">
         {exercise.name}
       </AppText>
@@ -67,21 +75,8 @@ export default function ExerciseDetail() {
         {exercise.description}
       </AppText>
 
-      <Card style={styles.card} testID="exercise-demo">
-        <AppText variant="label" color={colors.textTertiary}>
-          Movement demonstration
-        </AppText>
-        <ExerciseAnimation
-          pattern={exercise.movementPattern}
-          equipment={exercise.equipment}
-          caption={`${formatMuscle(exercise.movementPattern)} pattern · coached tempo`}
-        />
-      </Card>
-
       <Card style={styles.card} testID="exercise-muscles">
-        <AppText variant="label" color={colors.textTertiary}>
-          Muscles targeted
-        </AppText>
+        <AppText variant="heading">Muscles targeted</AppText>
         <MuscleDiagram primary={exercise.primaryMuscles} secondary={exercise.secondaryMuscles} />
         <AppText variant="caption" color={colors.textSecondary}>
           Primary: {exercise.primaryMuscles.map(formatMuscle).join(', ')}
@@ -92,9 +87,7 @@ export default function ExerciseDetail() {
       </Card>
 
       <Card style={styles.card} testID="exercise-instructions">
-        <AppText variant="label" color={colors.textTertiary}>
-          How to perform
-        </AppText>
+        <AppText variant="heading">How to perform</AppText>
         {exercise.instructions.map((step, i) => (
           <View key={i} style={styles.stepRow}>
             <AppText variant="bodyBold" color={colors.accent}>
@@ -108,9 +101,7 @@ export default function ExerciseDetail() {
       </Card>
 
       <Card style={styles.card} testID="exercise-trend">
-        <AppText variant="label" color={colors.textTertiary}>
-          Your estimated 1RM trend
-        </AppText>
+        <AppText variant="heading">Your estimated 1RM trend</AppText>
         <ProgressChart points={trend} unitLabel={`Estimated one-rep max (${unit})`} width={300} />
       </Card>
     </Screen>
@@ -123,6 +114,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: spacing.md,
   },
+  hero: { alignItems: 'center', marginBottom: spacing.lg },
   badges: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.md },
   description: { marginVertical: spacing.lg, lineHeight: 24 },
   card: { gap: spacing.md, marginBottom: spacing.lg },

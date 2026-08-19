@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { rpeLabel } from '../../domain/effort';
-import { colors, radius, spacing } from '../theme';
+import { colors, fonts, radius, spacing } from '../theme';
 import { AppText } from './primitives';
 
 const RPE_VALUES = [6, 7, 7.5, 8, 8.5, 9, 10] as const;
@@ -56,6 +56,7 @@ export const RpePicker = ({
               <AppText
                 variant="bodyBold"
                 color={selected ? colors.textInverse : colors.textSecondary}
+                style={selected ? styles.optionNumeral : undefined}
               >
                 {v % 1 === 0 ? String(v) : v.toFixed(1)}
               </AppText>
@@ -75,8 +76,8 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: spacing.xs },
   option: {
     flex: 1,
-    minHeight: 52,
-    borderRadius: radius.sm,
+    minHeight: 56,
+    borderRadius: radius.md,
     backgroundColor: colors.surfaceRaised,
     borderWidth: 1,
     borderColor: colors.border,
@@ -84,4 +85,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   optionSelected: { backgroundColor: colors.accent, borderColor: colors.accent },
+  optionNumeral: {
+    fontFamily: fonts.display,
+    fontWeight: '400',
+  },
 });

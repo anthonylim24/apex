@@ -1,8 +1,17 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withSequence,
+  withSpring,
+} from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { colors, radius, spacing, touch } from '../theme';
 import { AppText } from './primitives';
+
+const VALUE_POP = { damping: 16, stiffness: 380, mass: 0.35 } as const;
 
 /**
  * Large-target numeric stepper for in-gym use: 64pt buttons, huge value
@@ -28,6 +37,24 @@ export const Stepper = ({
   onChange: (value: number) => void;
   testID?: string;
 }) => {
+  const reducedMotion = useReducedMotion();
+  const scale = useSharedValue(1);
+  const skipMountPop = useRef(true);
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  useEffect(() => {
+    if (skipMountPop.current) {
+      skipMountPop.current = false;
+      return;
+    }
+    if (reducedMotion) return;
+    // Reanimated shared values are mutated via `.value`; that is the API.
+    // eslint-disable-next-line react-hooks/immutability -- SharedValue
+    scale.value = withSequence(withSpring(1.08, VALUE_POP), withSpring(1, VALUE_POP));
+  }, [value, reducedMotion, scale]);
+
   const adjust = (delta: number): void => {
     const next = Math.min(max, Math.max(min, Math.round((value + delta) * 100) / 100));
     if (next !== value) {
@@ -55,14 +82,16 @@ export const Stepper = ({
           </AppText>
         </Pressable>
         <View style={styles.valueBox} accessibilityRole="text" accessibilityLabel={`${label}: ${displayValue ?? value}`}>
-          <AppText
-            variant="display"
-            testID={testID ? `${testID}-value` : undefined}
-            adjustsFontSizeToFit
-            numberOfLines={1}
-          >
-            {displayValue ?? String(value)}
-          </AppText>
+          <Animated.View style={[styles.valuePop, animatedStyle]}>
+            <AppText
+              variant="display"
+              testID={testID ? `${testID}-value` : undefined}
+              adjustsFontSizeToFit
+              numberOfLines={1}
+            >
+              {displayValue ?? String(value)}
+            </AppText>
+          </Animated.View>
         </View>
         <Pressable
           testID={testID ? `${testID}-increment` : undefined}
@@ -96,4 +125,5 @@ const styles = StyleSheet.create({
   },
   stepButtonPressed: { backgroundColor: colors.surfacePressed },
   valueBox: { flex: 1, alignItems: 'center', minHeight: touch.setLogger, justifyContent: 'center' },
+  valuePop: { alignItems: 'center', justifyContent: 'center', width: '100%' },
 });

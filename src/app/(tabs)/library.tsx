@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { FlatList, StyleSheet, TextInput, View } from 'react-native';
@@ -82,109 +83,144 @@ export default function Library() {
     muscles.length + equipment.length + difficulty.length + patterns.length + (favoritesOnly ? 1 : 0);
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top }]} testID="library-screen">
-      <View style={styles.searchRow}>
-        <TextInput
-          testID="library-search"
-          style={styles.search}
-          placeholder="Search exercises, muscles, equipment…"
-          placeholderTextColor={colors.textTertiary}
-          value={query}
-          onChangeText={setQuery}
-          accessibilityLabel="Search exercises"
-          autoCorrect={false}
-        />
-        <Button
-          label={activeFilterCount > 0 ? `Filters (${activeFilterCount})` : 'Filters'}
-          variant="secondary"
-          compact
-          onPress={() => setShowFilters((v) => !v)}
-          testID="library-filter-toggle"
-        />
-      </View>
-
-      {showFilters ? (
-        <View style={styles.filters} testID="library-filters">
-          <AppText variant="label" color={colors.textTertiary}>
-            Muscle
-          </AppText>
-          <ChipRow options={MUSCLES} selected={muscles} onToggle={(v) => setMuscles((p) => toggle(p, v))} />
-          <AppText variant="label" color={colors.textTertiary}>
-            Equipment
-          </AppText>
-          <ChipRow options={EQUIPMENT} selected={equipment} onToggle={(v) => setEquipment((p) => toggle(p, v))} />
-          <AppText variant="label" color={colors.textTertiary}>
-            Difficulty
-          </AppText>
-          <ChipRow options={DIFFICULTY} selected={difficulty} onToggle={(v) => setDifficulty((p) => toggle(p, v))} />
-          <AppText variant="label" color={colors.textTertiary}>
-            Movement pattern
-          </AppText>
-          <ChipRow options={PATTERNS} selected={patterns} onToggle={(v) => setPatterns((p) => toggle(p, v))} />
-          <ChipRow
-            options={[{ value: 'favorites', label: '★ Favorites only' }]}
-            selected={favoritesOnly ? ['favorites'] : []}
-            onToggle={() => setFavoritesOnly((v) => !v)}
-            testID="library-favorites-filter"
+    <View style={styles.screen} testID="library-screen">
+      <LinearGradient
+        colors={[colors.bgTop, colors.bg]}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+        style={styles.screenLight}
+        pointerEvents="none"
+      />
+      <View style={[styles.body, { paddingTop: insets.top }]}>
+        <View style={styles.masthead}>
+          <AppText variant="title">Exercises</AppText>
+        </View>
+        <View style={styles.searchRow}>
+          <TextInput
+            testID="library-search"
+            style={styles.search}
+            placeholder="Search exercises, muscles, equipment…"
+            placeholderTextColor={colors.textTertiary}
+            value={query}
+            onChangeText={setQuery}
+            accessibilityLabel="Search exercises"
+            autoCorrect={false}
+          />
+          <Button
+            label={activeFilterCount > 0 ? `Filters (${activeFilterCount})` : 'Filters'}
+            variant="secondary"
+            compact
+            onPress={() => setShowFilters((v) => !v)}
+            testID="library-filter-toggle"
           />
         </View>
-      ) : null}
 
-      <FlatList
-        data={results}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
-        keyboardShouldPersistTaps="handled"
-        renderItem={({ item }) => (
-          <ExerciseCard
-            exercise={item}
-            isFavorite={favoriteIds.has(item.id)}
-            onPress={() => router.push(`/exercise/${item.id}`)}
-            onToggleFavorite={() => toggleFavorite.mutate(item.id)}
-          />
-        )}
-        ListEmptyComponent={
-          <EmptyState
-            title="No exercises match"
-            message="Try fewer filters, a different spelling, or create a custom exercise."
-            actionLabel="Create custom exercise"
-            onAction={() => router.push('/exercise/new')}
-            testID="library-empty"
-          />
-        }
-        ListFooterComponent={
-          <Button
-            label="+ Create custom exercise"
-            variant="ghost"
-            onPress={() => router.push('/exercise/new')}
-            testID="library-create-custom"
-          />
-        }
-      />
+        {showFilters ? (
+          <View style={styles.filters} testID="library-filters">
+            <AppText variant="label" color={colors.textSecondary}>
+              Muscle
+            </AppText>
+            <ChipRow options={MUSCLES} selected={muscles} onToggle={(v) => setMuscles((p) => toggle(p, v))} />
+            <AppText variant="label" color={colors.textSecondary}>
+              Equipment
+            </AppText>
+            <ChipRow options={EQUIPMENT} selected={equipment} onToggle={(v) => setEquipment((p) => toggle(p, v))} />
+            <AppText variant="label" color={colors.textSecondary}>
+              Difficulty
+            </AppText>
+            <ChipRow options={DIFFICULTY} selected={difficulty} onToggle={(v) => setDifficulty((p) => toggle(p, v))} />
+            <AppText variant="label" color={colors.textSecondary}>
+              Movement pattern
+            </AppText>
+            <ChipRow options={PATTERNS} selected={patterns} onToggle={(v) => setPatterns((p) => toggle(p, v))} />
+            <ChipRow
+              options={[{ value: 'favorites', label: '★ Favorites only' }]}
+              selected={favoritesOnly ? ['favorites'] : []}
+              onToggle={() => setFavoritesOnly((v) => !v)}
+              testID="library-favorites-filter"
+            />
+          </View>
+        ) : null}
+
+        <FlatList
+          data={results}
+          keyExtractor={(item) => item.id}
+          style={styles.listFlex}
+          contentContainerStyle={styles.list}
+          keyboardShouldPersistTaps="handled"
+          renderItem={({ item }) => (
+            <ExerciseCard
+              exercise={item}
+              isFavorite={favoriteIds.has(item.id)}
+              onPress={() => router.push(`/exercise/${item.id}`)}
+              onToggleFavorite={() => toggleFavorite.mutate(item.id)}
+            />
+          )}
+          ListEmptyComponent={
+            <EmptyState
+              title="No exercises match"
+              message="Try fewer filters, a different spelling, or create a custom exercise."
+              actionLabel="Create custom exercise"
+              onAction={() => router.push('/exercise/new')}
+              testID="library-empty"
+            />
+          }
+          ListFooterComponent={
+            <Button
+              label="+ Create custom exercise"
+              variant="ghost"
+              onPress={() => router.push('/exercise/new')}
+              testID="library-create-custom"
+            />
+          }
+        />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
+  screenLight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 260,
+  },
+  body: { flex: 1 },
+  masthead: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.xs,
+  },
   searchRow: {
     flexDirection: 'row',
     gap: spacing.sm,
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.sm,
     alignItems: 'center',
   },
   search: {
     flex: 1,
     minHeight: touch.min - 8,
-    borderRadius: radius.md,
+    borderRadius: radius.sm,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.surfaceOutline,
     backgroundColor: colors.surface,
     color: colors.text,
     paddingHorizontal: spacing.lg,
     fontSize: 16,
+    fontWeight: '600',
+    letterSpacing: 0.3,
   },
-  filters: { paddingHorizontal: spacing.lg, gap: spacing.sm, paddingBottom: spacing.md },
-  list: { paddingHorizontal: spacing.lg, gap: spacing.sm, paddingBottom: spacing.xxxl },
+  filters: {
+    paddingHorizontal: spacing.lg,
+    gap: spacing.sm,
+    paddingBottom: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.surfaceOutline,
+  },
+  listFlex: { flex: 1 },
+  list: { paddingHorizontal: spacing.lg, gap: spacing.xs, paddingBottom: spacing.xxxl, paddingTop: spacing.sm },
 });

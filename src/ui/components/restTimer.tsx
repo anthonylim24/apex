@@ -1,6 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Svg, { Circle } from 'react-native-svg';
+import Animated, {
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
+import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { colors, spacing } from '../theme';
 import { AppText, Button } from './primitives';
 
@@ -8,6 +16,8 @@ const RING_SIZE = 220;
 const STROKE = 10;
 const RADIUS = (RING_SIZE - STROKE) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+const RING_GRAD_ID = 'rest-ring-stroke';
+const BREATHE_MS = 900;
 
 const formatClock = (totalSeconds: number): string => {
   const s = Math.max(0, Math.ceil(totalSeconds));
@@ -39,19 +49,46 @@ export const RestTimerOverlay = ({
 }) => {
   const progress = totalSeconds > 0 ? Math.max(0, secondsRemaining / totalSeconds) : 0;
   const almostGo = secondsRemaining <= 10;
-  const ringColor = almostGo ? colors.active : colors.rest;
+  const labelColor = almostGo ? colors.accent : colors.rest;
+  const reducedMotion = useReducedMotion();
+  const breathe = useSharedValue(1);
+  const breatheStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: breathe.value }],
+  }));
+
+  useEffect(() => {
+    if (reducedMotion || !almostGo) {
+      // eslint-disable-next-line react-hooks/immutability -- SharedValue
+      breathe.value = 1;
+      return;
+    }
+    // eslint-disable-next-line react-hooks/immutability -- SharedValue
+    breathe.value = withRepeat(
+      withSequence(withTiming(1.03, { duration: BREATHE_MS }), withTiming(1, { duration: BREATHE_MS })),
+      -1,
+      false,
+    );
+    return () => {
+      // eslint-disable-next-line react-hooks/immutability -- SharedValue
+      breathe.value = 1;
+    };
+  }, [almostGo, reducedMotion, breathe]);
+
   return (
     <View style={styles.container} testID={testID}>
-      <AppText variant="label" color={ringColor}>
-        {almostGo ? 'Almost go' : 'Resting'}
-      </AppText>
       {encouragement ? (
         <AppText variant="caption" color={colors.textSecondary} testID={`${testID}-encouragement`}>
           {encouragement}
         </AppText>
       ) : null}
-      <View style={styles.ringWrap}>
+      <Animated.View style={[styles.ringWrap, breatheStyle]}>
         <Svg width={RING_SIZE} height={RING_SIZE}>
+          <Defs>
+            <LinearGradient id={RING_GRAD_ID} x1="0" y1="0" x2="1" y2="1">
+              <Stop offset="0" stopColor={almostGo ? colors.accent : colors.rest} />
+              <Stop offset="1" stopColor={colors.accent} />
+            </LinearGradient>
+          </Defs>
           <Circle
             cx={RING_SIZE / 2}
             cy={RING_SIZE / 2}
@@ -64,7 +101,7 @@ export const RestTimerOverlay = ({
             cx={RING_SIZE / 2}
             cy={RING_SIZE / 2}
             r={RADIUS}
-            stroke={ringColor}
+            stroke={`url(#${RING_GRAD_ID})`}
             strokeWidth={STROKE}
             fill="none"
             strokeLinecap="round"
@@ -77,8 +114,11 @@ export const RestTimerOverlay = ({
           <AppText variant="displayXl" testID={`${testID}-clock`}>
             {formatClock(secondsRemaining)}
           </AppText>
+          <AppText variant="label" color={labelColor}>
+            {almostGo ? 'Almost go' : 'Resting'}
+          </AppText>
         </View>
-      </View>
+      </Animated.View>
       {nextUp ? (
         <AppText variant="body" color={colors.textSecondary}>
           Next: {nextUp}

@@ -70,7 +70,7 @@ export const SetLogger = ({
   return (
     <View style={styles.container} testID={testID}>
       <View style={styles.header}>
-        <AppText variant="heading">
+        <AppText variant="title">
           {draft.isWarmup ? `Warm-up set` : `Set ${setNumber}`}
         </AppText>
         <AppText
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
   tagRow: { flexDirection: 'row', gap: spacing.sm },
   tag: {
     flex: 1,
-    minHeight: 48,
+    minHeight: 56,
     borderRadius: radius.sm,
     borderWidth: 1,
     borderColor: colors.border,

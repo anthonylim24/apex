@@ -4,6 +4,10 @@ Dark-first, gym-first. Implemented in `src/ui/theme.ts` (single source of truth)
 explains the reasoning. Gym principles: **glanceable, one-handed, works in dim lighting,
 motivating but not distracting.**
 
+Visual world: **Iron Poster** (see `docs/design/overdrive-plan.md`) — athletic poster typography,
+near-black surfaces with a top-light gradient (`bgTop` → `bg`), hairline card elevation, one lime
+accent doing real work. Personality stays in earned/idle moments; the SetLogger loop stays fast.
+
 ## 1. Color
 
 | Token | Value | Use | Contrast vs bg |
@@ -28,20 +32,21 @@ everywhere); color is never the only signal (labels/borders always accompany it)
 
 ## 2. Typography
 
-System font (SF Pro / Roboto) — instant load, best hinting, full Dynamic Type support.
+Iron Poster pairing: **Anton** (`Anton_400Regular`, loaded at the root) for display/title/numerals;
+system sans (SF Pro / Roboto) for body, captions, and labels.
 
-| Token | Size/weight | Use |
+| Token | Size / face | Use |
 |---|---|---|
-| `displayXl` | 56 / 800 | Rest countdown, hero numerals |
-| `display` | 40 / 800 | Stepper values (weight/reps) |
-| `title` | 28 / 700 | Screen titles |
-| `heading` | 20 / 700 | Card/section headings, exercise name in player |
+| `displayXl` | 68 / Anton | Rest countdown |
+| `display` | 48 / Anton | Stepper values, home greeting, poster figures |
+| `title` | 32 / Anton uppercase | Screen titles, set lockup, player exercise name |
+| `heading` | 20 / 800 system | Card/section headings |
 | `body` / `bodyBold` | 16 / 400·700 | Default text |
 | `caption` | 13 / 500 | Meta, cues |
 | `label` | 12 / 600 upper | Field labels |
 
 Numerals the lifter reads mid-set (weight, reps, timer) are the largest elements on screen —
-readable at arm's length on a bench.
+readable at arm's length on a bench. Tracking stays ≥ −0.04em.
 
 ## 3. Spacing, radius, touch
 
@@ -53,9 +58,10 @@ readable at arm's length on a bench.
 ## 4. Motion
 
 Gym-energy: fast, purposeful, no bounce. `fast 120 ms / base 200 ms / slow 320 ms`, ease-out.
-Only three sanctioned animations: screen transitions (fade-from-bottom 200 ms), rest-ring
-progress (continuous), PR celebration pulse (single, reduce-motion aware). Nothing loops for
-attention.
+Sanctioned motion: screen transitions (fade-from-bottom 200 ms), rest-ring progress + last-10s
+breathe, stepper numeral spring-pop, primary-button press spring (0.97), chart draw-in, PR
+celebration pulse. All honor reduce-motion. Nothing loops for attention except the rest-ring
+breathe in the final 10 seconds.
 
 ## 5. Component specs (priority order)
 
@@ -72,17 +78,21 @@ The one component executed 15–25× per session. Spec:
 - Prefill: current-session last set > last-session matching set > prescription target.
 
 ### RestTimerOverlay
-Replaces the logger between sets (single-focus, glanceable). 220 pt progress ring, 56 pt m:ss
-numerals, −15 s / +15 s / Skip (all ≥ 56 pt). Shows "Next: …" so the lifter can pre-plan.
-Wall-clock anchored — survives navigation, backgrounding, re-render.
+Replaces the logger between sets (single-focus, glanceable). 220 pt progress ring with a
+rest-cyan → lime gradient stroke and rounded caps, 68 pt Anton m:ss numerals, −15 s / +15 s /
+Skip (all ≥ 56 pt). Final 10 s: "Almost go" + optional ring breathe. Shows "Next: …" so the
+lifter can pre-plan. Wall-clock anchored — survives navigation, backgrounding, re-render.
 
 ### ExerciseCard
-Name, primary muscles + equipment line, difficulty badge (color + text), favorite star with its
-own 56 pt target (independent of the card press). Min height 72 pt.
+Leading **PoseGlyph** (static mid-rep pose from the exercise's choreography, 48 pt), name,
+primary muscles + equipment line, difficulty badge (color + text), favorite star with its
+own 56 pt target (independent of the card press). Min height 72 pt. Hairline `surfaceOutline`.
 
 ### ProgressChart / WeeklyBars
-Custom SVG (renders identically on iOS/Android/web; headless-testable). Dashed gridlines at
-min/mid/max, dot per session, date range labels, explanatory empty state.
+Custom SVG (renders identically on iOS/Android/web; headless-testable). Gradient area fill
+under the line, draw-in stroke (skipped under reduce-motion), dashed gridlines at min/mid/max,
+dot per session, Anton date labels, explanatory empty state. Weekly bars use a vertical
+accent gradient.
 
 ### OnboardingWizard
 5 steps, progress dots, one decision per screen, "why we ask" copy under every title,
@@ -106,8 +116,9 @@ lifting. The implemented personality layer (`src/ui/coachVoice.ts` + components)
 
 | Moment | Treatment | Why it's safe |
 |---|---|---|
-| Home header | Apex wordmark (rising-line mark) + time-of-day greeting ("Morning session?") | Idle browsing moment |
+| Home header | Apex wordmark + Anton greeting + 4%-opacity Apex mark as background texture | Idle browsing moment |
 | Home card | Daily "Coach's note" — one science-grounded line, rotates by calendar day (deterministic, no variable reward) | Educates; never nags |
+| Library cards | PoseGlyph — each exercise's own mid-rep pose as the leading mark | Catalog identity, not decoration |
 | Exercise detail | Procedural movement demonstration at coached tempo | Educational motion, reduce-motion aware |
 | Rest timer | Ring warms cyan → lime in the final 10 s ("Almost go"); one rotating coach line per set ("Good set. Big breaths.") — cycled by set count, not random | Rest is the one idle moment mid-workout |
 | New PR | Single confetti burst (14 deterministic pieces, ~1.1 s, once) + gold card | Earned, brief, honest — fires only on real records |

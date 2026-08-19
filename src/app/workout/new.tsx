@@ -125,6 +125,7 @@ export default function NewWorkout() {
         <Button label="‹ Back" variant="ghost" compact onPress={() => router.back()} testID="new-workout-back" />
       </View>
       <AppText variant="title">New workout</AppText>
+      <View style={styles.titleRule} />
 
       <SegmentedControl<Mode>
         options={[
@@ -153,7 +154,7 @@ export default function NewWorkout() {
           />
           {generated ? (
             <Card style={styles.planCard} testID="generated-plan">
-              <AppText variant="bodyBold">{generated.name}</AppText>
+              <AppText variant="title">{generated.name}</AppText>
               <AppText variant="caption" color={colors.textSecondary}>
                 ~{generated.estimatedMinutes} min · {generated.exercises.length} exercises · fits
                 your {p.preferredSessionMinutes}-minute preference
@@ -250,6 +251,13 @@ export default function NewWorkout() {
 
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', paddingVertical: spacing.md },
+  titleRule: {
+    width: 40,
+    height: 2,
+    backgroundColor: colors.accent,
+    marginTop: spacing.sm,
+    marginBottom: spacing.md,
+  },
   section: { gap: spacing.md, marginTop: spacing.lg },
   planCard: { gap: spacing.sm },
   planRow: {

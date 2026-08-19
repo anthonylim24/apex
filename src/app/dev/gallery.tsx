@@ -6,6 +6,7 @@ import type { Equipment, MovementPattern } from '@/domain/types';
 import { useSessionStore, type SetDraft } from '@/state/sessionStore';
 import { ExerciseAnimation } from '@/ui/components/exerciseAnimation';
 import { ExerciseCard } from '@/ui/components/exerciseCard';
+import { PoseGlyph } from '@/ui/components/poseGlyph';
 import { MuscleDiagram } from '@/ui/components/muscleDiagram';
 import { PrCelebration } from '@/ui/components/prCelebration';
 import { ProgressChart, WeeklyBars } from '@/ui/components/progressChart';
@@ -108,6 +109,37 @@ export default function Gallery() {
           onPress={() => undefined}
           onToggleFavorite={() => setFavorite((f) => !f)}
         />
+      </Section>
+
+      <Section title="PoseGlyph — mid-rep catalog marks" testID="gallery-pose-glyphs">
+        <Card style={styles.animGrid}>
+          {(
+            [
+              ['squat', ['barbell']],
+              ['hinge', ['barbell']],
+              ['lunge', ['dumbbell']],
+              ['horizontal_push', ['barbell', 'bench']],
+              ['horizontal_pull', ['barbell']],
+              ['vertical_push', ['barbell']],
+              ['vertical_pull', ['pullup_bar']],
+              ['isolation', ['dumbbell']],
+              ['core', ['bodyweight']],
+              ['carry', ['kettlebell']],
+            ] as [MovementPattern, Equipment[]][]
+          ).map(([pattern, equipment]) => (
+            <View key={pattern} style={styles.glyphCell}>
+              <PoseGlyph
+                pattern={pattern}
+                equipment={equipment}
+                size={56}
+                testID={`gallery-pose-${pattern}`}
+              />
+              <AppText variant="caption" color={colors.textTertiary}>
+                {pattern.replace(/_/g, ' ')}
+              </AppText>
+            </View>
+          ))}
+        </Card>
       </Section>
 
       <Section title="ExerciseAnimation — all movement patterns" testID="gallery-exercise-animation">
@@ -261,4 +293,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: spacing.lg,
   },
+  glyphCell: { alignItems: 'center', gap: spacing.xs, width: 72 },
 });

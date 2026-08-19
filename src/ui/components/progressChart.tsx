@@ -1,12 +1,18 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Svg, { Circle, Line, Path, Rect, Text as SvgText } from 'react-native-svg';
+import { useReducedMotion } from 'react-native-reanimated';
+import Svg, { Circle, Defs, Line, LinearGradient, Path, Rect, Stop, Text as SvgText } from 'react-native-svg';
 import type { TrendPoint } from '../../domain/stats';
-import { colors, spacing } from '../theme';
+import { colors, fonts, spacing } from '../theme';
 import { AppText } from './primitives';
 
 const CHART_HEIGHT = 180;
 const PADDING = { top: 12, right: 12, bottom: 24, left: 44 };
+const DRAW_DASH = 800;
+const DRAW_MS = 520;
+
+const gradientId = (prefix: string, reactId: string): string =>
+  `${prefix}${reactId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
 
 /**
  * Lightweight SVG line chart for progression trends (e1RM, volume).
@@ -36,6 +42,37 @@ export const ProgressChart = ({
     );
   }
 
+  const plotKey = points.map((p) => `${p.date}:${p.value}`).join('|');
+  return (
+    <ProgressChartPlot
+      key={plotKey}
+      points={points}
+      width={width}
+      unitLabel={unitLabel}
+      accentColor={accentColor}
+      testID={testID}
+    />
+  );
+};
+
+const ProgressChartPlot = ({
+  points,
+  width = 340,
+  unitLabel,
+  accentColor,
+  testID,
+}: {
+  points: TrendPoint[];
+  width?: number;
+  unitLabel: string;
+  accentColor: string;
+  testID: string;
+}) => {
+  const reducedMotion = Boolean(useReducedMotion());
+  const [dashOffset, setDashOffset] = useState(reducedMotion ? 0 : DRAW_DASH);
+  const reactId = React.useId();
+  const fillId = gradientId('chartArea', reactId);
+
   const innerWidth = width - PADDING.left - PADDING.right;
   const innerHeight = CHART_HEIGHT - PADDING.top - PADDING.bottom;
   const values = points.map((p) => p.value);
@@ -50,14 +87,36 @@ export const ProgressChart = ({
   const path = points
     .map((p, i) => `${i === 0 ? 'M' : 'L'} ${xFor(i).toFixed(1)} ${yFor(p.value).toFixed(1)}`)
     .join(' ');
+  const baseline = PADDING.top + innerHeight;
+  const areaPath = `${path} L ${xFor(points.length - 1).toFixed(1)} ${baseline.toFixed(1)} L ${xFor(0).toFixed(1)} ${baseline.toFixed(1)} Z`;
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    const started = Date.now();
+    let raf = 0;
+    const tick = () => {
+      const t = Math.min(1, (Date.now() - started) / DRAW_MS);
+      const eased = 1 - (1 - t) * (1 - t);
+      setDashOffset(DRAW_DASH * (1 - eased));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [reducedMotion]);
 
   const gridValues = [min, (min + max) / 2, max];
 
   return (
     <View testID={testID}>
       <Svg width={width} height={CHART_HEIGHT}>
-        {gridValues.map((v) => (
-          <React.Fragment key={v}>
+        <Defs>
+          <LinearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
+            <Stop offset="0" stopColor={accentColor} stopOpacity="0.28" />
+            <Stop offset="1" stopColor={accentColor} stopOpacity="0" />
+          </LinearGradient>
+        </Defs>
+        {gridValues.map((v, i) => (
+          <React.Fragment key={`${v}-${i}`}>
             <Line
               x1={PADDING.left}
               y1={yFor(v)}
@@ -78,7 +137,17 @@ export const ProgressChart = ({
             </SvgText>
           </React.Fragment>
         ))}
-        <Path d={path} stroke={accentColor} strokeWidth={2.5} fill="none" strokeLinejoin="round" />
+        <Path d={areaPath} fill={`url(#${fillId})`} stroke="none" />
+        <Path
+          d={path}
+          stroke={accentColor}
+          strokeWidth={2.5}
+          fill="none"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          strokeDasharray={reducedMotion ? undefined : DRAW_DASH}
+          strokeDashoffset={reducedMotion ? 0 : dashOffset}
+        />
         {points.map((p, i) => (
           <Circle key={p.date + i} cx={xFor(i)} cy={yFor(p.value)} r={4} fill={accentColor} />
         ))}
@@ -86,7 +155,8 @@ export const ProgressChart = ({
           x={PADDING.left}
           y={CHART_HEIGHT - 6}
           fill={colors.textTertiary}
-          fontSize={10}
+          fontSize={11}
+          fontFamily={fonts.display}
         >
           {points[0].date}
         </SvgText>
@@ -94,7 +164,8 @@ export const ProgressChart = ({
           x={width - PADDING.right}
           y={CHART_HEIGHT - 6}
           fill={colors.textTertiary}
-          fontSize={10}
+          fontSize={11}
+          fontFamily={fonts.display}
           textAnchor="end"
         >
           {points[points.length - 1].date}
@@ -123,9 +194,16 @@ export const WeeklyBars = ({
   const max = Math.max(...data.map((d) => d.value), 1);
   const gap = 8;
   const barWidth = data.length > 0 ? (width - gap * (data.length - 1)) / data.length : 0;
+  const fillId = gradientId('weeklyBar', React.useId());
   return (
     <View testID={testID}>
       <Svg width={width} height={height + 18}>
+        <Defs>
+          <LinearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
+            <Stop offset="0" stopColor={barColor} stopOpacity="1" />
+            <Stop offset="1" stopColor={barColor} stopOpacity="0.4" />
+          </LinearGradient>
+        </Defs>
         {data.map((d, i) => {
           const barHeight = Math.max(3, (d.value / max) * height);
           return (
@@ -136,13 +214,14 @@ export const WeeklyBars = ({
                 width={barWidth}
                 height={barHeight}
                 rx={4}
-                fill={d.value > 0 ? barColor : colors.surfaceRaised}
+                fill={d.value > 0 ? `url(#${fillId})` : colors.surfaceRaised}
               />
               <SvgText
                 x={i * (barWidth + gap) + barWidth / 2}
                 y={height + 14}
                 fill={colors.textTertiary}
                 fontSize={9}
+                fontFamily={fonts.display}
                 textAnchor="middle"
               >
                 {d.label}

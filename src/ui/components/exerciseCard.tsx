@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import type { Exercise } from '../../domain/types';
 import { colors, radius, spacing, touch } from '../theme';
 import { AppText, Badge } from './primitives';
+import { PoseGlyph } from './poseGlyph';
 
 const DIFFICULTY_COLORS: Record<Exercise['difficulty'], string> = {
   beginner: colors.success,
@@ -33,6 +34,7 @@ export const ExerciseCard = ({
     onPress={onPress}
     style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
   >
+    <PoseGlyph pattern={exercise.movementPattern} equipment={exercise.equipment} size={48} decorative />
     <View style={styles.main}>
       <AppText variant="bodyBold" numberOfLines={1}>
         {exercise.name}
@@ -73,7 +75,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.surfaceOutline,
     padding: spacing.lg,
     minHeight: touch.min + 16,
     gap: spacing.md,

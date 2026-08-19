@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useKeepAwake } from 'expo-keep-awake';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -15,7 +16,7 @@ import { PrCelebration } from '@/ui/components/prCelebration';
 import { AppText, Button } from '@/ui/components/primitives';
 import { RestTimerOverlay } from '@/ui/components/restTimer';
 import { SetLogger } from '@/ui/components/setLogger';
-import { colors, spacing } from '@/ui/theme';
+import { colors, radius, spacing } from '@/ui/theme';
 
 /**
  * Live Workout Player — the highest-priority surface.
@@ -93,6 +94,13 @@ export default function WorkoutPlayer() {
   if (!session || !currentExercise) {
     return (
       <View style={[styles.screen, styles.center, { paddingTop: insets.top }]} testID="player-screen">
+        <LinearGradient
+          colors={[colors.bgTop, colors.bg]}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+          style={styles.screenLight}
+          pointerEvents="none"
+        />
         <AppText variant="heading">No active workout</AppText>
         <Button label="Back home" onPress={() => router.replace('/(tabs)')} />
       </View>
@@ -142,102 +150,128 @@ export default function WorkoutPlayer() {
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top + spacing.md }]} testID="player-screen">
-      {/* Header: where am I, how far along */}
-      <View style={styles.header}>
-        <View style={styles.headerText}>
-          <AppText variant="label" color={colors.textTertiary}>
-            Exercise {exerciseIndex + 1} of {session.exercises.length}
-          </AppText>
-          <AppText variant="heading" numberOfLines={1} testID="player-exercise-name">
-            {exerciseInfo?.name ?? currentExercise.exerciseId}
-          </AppText>
-          <AppText variant="caption" color={colors.textSecondary} testID="player-set-progress">
-            {workingSets.length} of {currentExercise.targetSets} sets ·{' '}
-            {currentExercise.targetRepsMin}-{currentExercise.targetRepsMax} reps target
-          </AppText>
-        </View>
-        <Button
-          label="Finish"
-          variant="secondary"
-          compact
-          onPress={handleFinish}
-          testID="player-finish"
-          accessibilityHint="Completes and saves this workout"
-        />
-      </View>
-
-      {suggestion && suggestion.action !== 'hold' && lastSets.length > 0 ? (
-        <View style={styles.suggestion} testID="player-suggestion">
-          <AppText variant="caption" color={colors.accent}>
-            Suggestion · confidence {suggestion.confidence}
-          </AppText>
-          <AppText variant="caption" color={colors.textSecondary}>
-            {suggestion.rationale}
-          </AppText>
-        </View>
-      ) : null}
-
-      <View style={styles.body}>
-        {resting ? (
-          <RestTimerOverlay
-            secondsRemaining={(restEndsAt - nowMs) / 1000}
-            totalSeconds={restTotalSeconds}
-            encouragement={restEncouragement(workingSets.length)}
-            nextUp={
-              workingSets.length >= currentExercise.targetSets && nextExercise
-                ? byId[nextExercise.exerciseId]?.name
-                : `Set ${workingSets.length + 1} · ${exerciseInfo?.name ?? ''}`
-            }
-            onAdjust={(delta) => {
-              store.getState().adjustRest(delta);
-              const remaining = (store.getState().restEndsAt ?? Date.now()) - Date.now();
-              void scheduleRestEndNotification(remaining / 1000);
+      <LinearGradient
+        colors={[colors.bgTop, colors.bg]}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+        style={styles.screenLight}
+        pointerEvents="none"
+      />
+      <View style={styles.padded}>
+        <View style={styles.headerBlock}>
+          <View
+            style={styles.exerciseTrack}
+            accessibilityRole="progressbar"
+            accessibilityLabel={`Exercise ${exerciseIndex + 1} of ${session.exercises.length}`}
+            accessibilityValue={{
+              min: 1,
+              max: session.exercises.length,
+              now: exerciseIndex + 1,
             }}
-            onSkip={() => {
-              store.getState().skipRest();
-              void cancelRestEndNotification();
-            }}
-          />
-        ) : (
-          <SetLogger
-            setNumber={workingSets.length + 1}
-            draft={draft}
-            previous={lastSets.filter((s) => !s.isWarmup)[workingSets.length] ?? lastSets.filter((s) => !s.isWarmup)[0]}
-            unit={unit}
-            effortMode={effortMode}
-            weightStep={smallestIncrement(exerciseInfo?.equipment ?? ['barbell'], unit)}
-            onChange={(d) => store.getState().setDraft(d)}
-            onLog={handleLog}
-          />
-        )}
-      </View>
+          >
+            {session.exercises.map((exercise, index) => (
+              <View
+                key={`${exercise.exerciseId}-${index}`}
+                style={[styles.trackSegment, index <= exerciseIndex && styles.trackSegmentFilled]}
+              />
+            ))}
+          </View>
+          <View style={styles.header}>
+            <View style={styles.headerText}>
+              <AppText
+                variant="title"
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                testID="player-exercise-name"
+              >
+                {exerciseInfo?.name ?? currentExercise.exerciseId}
+              </AppText>
+              <AppText variant="caption" color={colors.textSecondary} testID="player-set-progress">
+                {workingSets.length} of {currentExercise.targetSets} sets ·{' '}
+                {currentExercise.targetRepsMin}-{currentExercise.targetRepsMax} reps target
+              </AppText>
+            </View>
+            <Button
+              label="Finish"
+              variant="secondary"
+              compact
+              onPress={handleFinish}
+              testID="player-finish"
+              accessibilityHint="Completes and saves this workout"
+            />
+          </View>
+        </View>
 
-      {/* Footer navigation — thumb zone */}
-      <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>
-        <Button
-          label="‹ Prev"
-          variant="secondary"
-          onPress={() => goToExercise(exerciseIndex - 1)}
-          disabled={exerciseIndex === 0}
-          style={styles.footerButton}
-          testID="player-prev-exercise"
-        />
-        <Button
-          label={confirmDiscard ? 'Really discard?' : 'Discard'}
-          variant="danger"
-          onPress={() => (confirmDiscard ? handleDiscard() : setConfirmDiscard(true))}
-          style={styles.footerButton}
-          testID="player-discard"
-          accessibilityHint={confirmDiscard ? 'Tap again to permanently discard this workout' : 'Tap twice to discard this workout'}
-        />
-        <Button
-          label="Next ›"
-          variant="secondary"
-          onPress={() => goToExercise(exerciseIndex + 1)}
-          disabled={exerciseIndex >= session.exercises.length - 1}
-          style={styles.footerButton}
-          testID="player-next-exercise"
-        />
+        {suggestion && suggestion.action !== 'hold' && lastSets.length > 0 ? (
+          <View style={styles.suggestion} testID="player-suggestion">
+            <AppText variant="caption" color={colors.accent}>
+              {suggestion.rationale}
+            </AppText>
+          </View>
+        ) : null}
+
+        <View style={styles.body}>
+          {resting ? (
+            <RestTimerOverlay
+              secondsRemaining={(restEndsAt - nowMs) / 1000}
+              totalSeconds={restTotalSeconds}
+              encouragement={restEncouragement(workingSets.length)}
+              nextUp={
+                workingSets.length >= currentExercise.targetSets && nextExercise
+                  ? byId[nextExercise.exerciseId]?.name
+                  : `Set ${workingSets.length + 1} · ${exerciseInfo?.name ?? ''}`
+              }
+              onAdjust={(delta) => {
+                store.getState().adjustRest(delta);
+                const remaining = (store.getState().restEndsAt ?? Date.now()) - Date.now();
+                void scheduleRestEndNotification(remaining / 1000);
+              }}
+              onSkip={() => {
+                store.getState().skipRest();
+                void cancelRestEndNotification();
+              }}
+            />
+          ) : (
+            <SetLogger
+              setNumber={workingSets.length + 1}
+              draft={draft}
+              previous={lastSets.filter((s) => !s.isWarmup)[workingSets.length] ?? lastSets.filter((s) => !s.isWarmup)[0]}
+              unit={unit}
+              effortMode={effortMode}
+              weightStep={smallestIncrement(exerciseInfo?.equipment ?? ['barbell'], unit)}
+              onChange={(d) => store.getState().setDraft(d)}
+              onLog={handleLog}
+            />
+          )}
+        </View>
+
+        {/* Footer navigation — thumb zone */}
+        <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>
+          <Button
+            label="‹ Prev"
+            variant="secondary"
+            onPress={() => goToExercise(exerciseIndex - 1)}
+            disabled={exerciseIndex === 0}
+            style={styles.footerButton}
+            testID="player-prev-exercise"
+          />
+          <Button
+            label={confirmDiscard ? 'Really discard?' : 'Discard'}
+            variant="danger"
+            onPress={() => (confirmDiscard ? handleDiscard() : setConfirmDiscard(true))}
+            style={styles.footerButton}
+            testID="player-discard"
+            accessibilityHint={confirmDiscard ? 'Tap again to permanently discard this workout' : 'Tap twice to discard this workout'}
+          />
+          <Button
+            label="Next ›"
+            variant="secondary"
+            onPress={() => goToExercise(exerciseIndex + 1)}
+            disabled={exerciseIndex >= session.exercises.length - 1}
+            style={styles.footerButton}
+            testID="player-next-exercise"
+          />
+        </View>
       </View>
 
       {finished && pendingPrs.length > 0 ? (
@@ -259,21 +293,49 @@ export default function WorkoutPlayer() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.bg, paddingHorizontal: spacing.lg },
-  center: { alignItems: 'center', justifyContent: 'center', gap: spacing.lg },
+  screen: { flex: 1, backgroundColor: colors.bg },
+  screenLight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 260,
+  },
+  padded: { flex: 1, paddingHorizontal: spacing.lg },
+  center: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.lg,
+    paddingHorizontal: spacing.lg,
+  },
+  headerBlock: { marginBottom: spacing.md, gap: spacing.sm },
+  exerciseTrack: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    height: 4,
+  },
+  trackSegment: {
+    flex: 1,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.surfaceRaised,
+  },
+  trackSegmentFilled: { backgroundColor: colors.accent },
   header: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     gap: spacing.md,
-    marginBottom: spacing.md,
   },
   headerText: { flex: 1, gap: 2 },
   suggestion: {
+    alignSelf: 'flex-start',
+    maxWidth: '100%',
     backgroundColor: colors.accentMuted,
-    borderRadius: 12,
-    padding: spacing.md,
-    gap: spacing.xs,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
     marginBottom: spacing.md,
   },
   body: { flex: 1, justifyContent: 'flex-end' },
