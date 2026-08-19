@@ -1,0 +1,11 @@
+{
+  "name": "apex (Expo SDK 57)",
+  "install": "npm ci",
+  "terminals": [
+    {
+      "name": "expo",
+      "command": "npx expo start --port 8081"
+    }
+  ],
+  "ports": [8081]
+}
