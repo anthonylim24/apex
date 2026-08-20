@@ -70,5 +70,9 @@
     "verify": "bun run typecheck && bun run lint && bun run test"
   },
   "trustedDependencies": ["unrs-resolver"],
+  "packageManager": "bun@1.4.0",
+  "engines": {
+    "bun": ">=1.4.0"
+  },
   "private": true
 }

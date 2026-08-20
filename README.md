@@ -5,8 +5,9 @@ logging built for the gym floor, evidence-based next-session suggestions you can
 a comprehensive educational exercise library, and history that shows real strength trends.
 **Offline-first everywhere** — every core path works with zero signal.
 
-> Runtime & tooling: this project uses [Bun](https://bun.com) for everything (`bun`, `bunx`,
-> `bun run`). Node.js LTS must be installed (Expo tooling shells out to it).
+> Runtime & tooling: this project uses [Bun 1.4](https://bun.com) (`packageManager`: `bun@1.4.0`)
+> for everything (`bun`, `bunx`, `bun run`). Node.js LTS must be installed (Expo tooling shells
+> out to it).
 
 ## Quick start
 
