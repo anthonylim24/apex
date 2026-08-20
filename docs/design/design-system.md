@@ -62,9 +62,10 @@ readable at arm's length on a bench. Tracking stays ≥ −0.04em.
 
 Clay press-in (buttons translate down 3 pt) plus gym-energy timing: `fast 120 / base 200 / slow 320`.
 Sanctioned motion: screen transitions, rest-ring breathe in the last 10 s, stepper pop, button
-press-in, chart draw-in, PR pulse, Pouf Pal 2.4 s character loop (anticipate → squash → stretch
-→ settle), idle Blob hops. All honor reduce-motion. Nothing loops for attention except rest-ring
-breathe and Pouf Pal / Blob idle hops (idle surfaces only).
+press-in, chart draw-in, PR pulse, Pouf Pal exercise clips (expo-video; still + 2.4 s squash
+when motion is reduced or the tile is tiny), idle Blob hops. All honor reduce-motion. Nothing
+loops for attention except rest-ring breathe, Pouf Pal clips, and Blob idle hops (idle surfaces
+only).
 
 ## 5. Component specs (priority order)
 
@@ -130,8 +131,9 @@ lifting. The implemented personality layer (`src/ui/coachVoice.ts` + components)
 | Home header | Apex wordmark + Pouf Pal idle + bouncing pastel Blobs | Idle browsing moment |
 | Home card | Daily "Coach's note" on a yellow Callout — rotates by calendar day | Educates; never nags |
 | Library cards | PoseGlyph + clay row + tone badges | Catalog identity |
-| Exercise detail | Pouf Pal clip of the pattern (web) or still + 2.4 s loop | Educational motion, reduce-motion aware |
-| Rest timer | Ring warms blue → mint ("Almost go"); one rotating coach line per set | Rest is the one idle moment mid-workout |
+| Exercise detail | Pouf Pal clip of the pattern (expo-video) | Educational motion, reduce-motion aware |
+| Rest timer | Pouf Pal clip inside the rest ring + ring warmth | Rest is the one idle moment mid-workout |
+| Live player header | Compact Pouf Pal of the current pattern | Glanceable demo, outside the SetLogger loop |
 | New PR | Pastel confetti burst + yellow clay medal | Earned, brief, honest |
 | Empty states | Resting Pouf Pal still | Warmth without branded mascots |
 

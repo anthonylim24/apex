@@ -16,6 +16,7 @@ import { PrCelebration } from '@/ui/components/prCelebration';
 import { Callout, ProgressPips } from '@/ui/components/poufKit';
 import { AppText, Button } from '@/ui/components/primitives';
 import { RestTimerOverlay } from '@/ui/components/restTimer';
+import { PoufPal } from '@/ui/components/exerciseAnimation/poufPal';
 import { SetLogger } from '@/ui/components/setLogger';
 import { colors, spacing } from '@/ui/theme';
 
@@ -172,6 +173,9 @@ export default function WorkoutPlayer() {
             <ProgressPips total={session.exercises.length} current={exerciseIndex} />
           </View>
           <View style={styles.header}>
+            {exerciseInfo ? (
+              <PoufPal pattern={exerciseInfo.movementPattern} size={80} />
+            ) : null}
             <View style={styles.headerText}>
               <AppText
                 variant="title"
@@ -209,6 +213,11 @@ export default function WorkoutPlayer() {
               secondsRemaining={(restEndsAt - nowMs) / 1000}
               totalSeconds={restTotalSeconds}
               encouragement={restEncouragement(workingSets.length)}
+              pattern={
+                workingSets.length >= currentExercise.targetSets && nextExercise
+                  ? byId[nextExercise.exerciseId]?.movementPattern
+                  : exerciseInfo?.movementPattern
+              }
               nextUp={
                 workingSets.length >= currentExercise.targetSets && nextExercise
                   ? byId[nextExercise.exerciseId]?.name
@@ -304,7 +313,7 @@ const styles = StyleSheet.create({
   headerBlock: { marginBottom: spacing.md, gap: spacing.sm, zIndex: 2 },
   header: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.md,
   },

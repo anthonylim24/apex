@@ -10,6 +10,7 @@ import { useSessionStore } from '@/state/sessionStore';
 import { useExerciseLibrary, useProfile, useSaveSession, useSessions } from '@/state/queries';
 import { FieldInput } from '@/ui/components/poufKit';
 import { AppText, Button, Card, Screen, SegmentedControl } from '@/ui/components/primitives';
+import { PoufPal } from '@/ui/components/exerciseAnimation/poufPal';
 import { colors, spacing } from '@/ui/theme';
 
 type Mode = 'generate' | 'manual';
@@ -159,17 +160,21 @@ export default function NewWorkout() {
                 ~{generated.estimatedMinutes} min · {generated.exercises.length} exercises · fits
                 your {p.preferredSessionMinutes}-minute preference
               </AppText>
-              {generated.exercises.map((ex) => (
-                <View key={ex.id} style={styles.planRow}>
-                  <AppText variant="body" style={styles.planName}>
-                    {byId[ex.exerciseId]?.name ?? ex.exerciseId}
-                  </AppText>
-                  <AppText variant="caption" color={colors.textSecondary}>
-                    {ex.targetSets} × {ex.targetRepsMin}-{ex.targetRepsMax}
-                    {ex.targetWeightKg ? ` @ ${formatWeight(ex.targetWeightKg, p.unit)}` : ''}
-                  </AppText>
-                </View>
-              ))}
+              {generated.exercises.map((ex) => {
+                const info = byId[ex.exerciseId];
+                return (
+                  <View key={ex.id} style={styles.planRow}>
+                    {info ? <PoufPal pattern={info.movementPattern} size={48} /> : null}
+                    <AppText variant="body" style={styles.planName}>
+                      {info?.name ?? ex.exerciseId}
+                    </AppText>
+                    <AppText variant="caption" color={colors.textSecondary}>
+                      {ex.targetSets} × {ex.targetRepsMin}-{ex.targetRepsMax}
+                      {ex.targetWeightKg ? ` @ ${formatWeight(ex.targetWeightKg, p.unit)}` : ''}
+                    </AppText>
+                  </View>
+                );
+              })}
               <AppText variant="caption" color={colors.textTertiary}>
                 Built from your goal, equipment, recent weekly volume, and past performance.
                 You stay in control — swap anything mid-workout.
