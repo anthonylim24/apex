@@ -10,8 +10,9 @@ This repo is an Expo (SDK 57) app configured for Cursor Cloud Agents in `.cursor
 installed (the Cursor default image provides it): Expo's `bun create expo` and `bun expo prebuild`
 shell out to `npm pack` to fetch templates and run React Native autolinking scripts.
 
-- Base image: Cursor default (Linux x86_64). `install` self-installs Bun via `https://bun.com/install`
-  if it is not already present, so no custom Dockerfile is required.
+- Base image: Cursor default (Linux x86_64). `install` installs or upgrades Bun to **1.4.0**
+  via `https://bun.com/install` (pinned; see `package.json` `packageManager`), so no custom
+  Dockerfile is required.
 - `install`: `bun install --frozen-lockfile` — reproducible install from `bun.lock`.
 - `terminals.expo`: `bunx expo start --port 8081` — Metro dev server run under Bun. Starting it also
   regenerates the gitignored `expo-env.d.ts` and `.expo/types/` used by `tsc`.
