@@ -2,6 +2,7 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
+    "types": ["jest"],
     "paths": {
       "@/*": [
         "./src/*"
@@ -16,5 +17,8 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-  ]
+  ],
+  // Bun-runtime utility scripts use Bun globals (import.meta.dir) that the
+  // app's RN-focused type set doesn't include.
+  "exclude": ["scripts", "node_modules"]
 }

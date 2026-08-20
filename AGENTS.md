@@ -28,3 +28,19 @@ shell out to `npm pack` to fetch templates and run React Native autolinking scri
 
 Native postinstall scripts are opt-in under Bun; packages that need them are listed in
 `trustedDependencies` in `package.json` (currently `unrs-resolver`, used by the ESLint resolver).
+
+## Project: Apex (strength-training app)
+
+Docs live in `docs/` (PRD, architecture, design system, testing, science). Key facts:
+
+- `src/domain` is pure TypeScript (no RN imports) — all training logic + most tests live there.
+- Offline-first: local storage is the source of truth; sync via outbox (`src/data/sync.ts`).
+- Without env vars the app runs in local mode (no Clerk/Supabase needed) — this is what tests use.
+
+### Verifying changes
+
+- `bun run verify` — typecheck + lint + all 121 Jest tests (headless, no device).
+- E2E: `bunx playwright install chromium` once, then `bun run export:web && bun run test:e2e`
+  (8 Playwright specs against the static web export, includes offline simulation).
+- RNTL v14 API: `await render(...)` and `await fireEvent...` in component tests.
+- Component gallery for visual review: `/dev/gallery` route on web.
