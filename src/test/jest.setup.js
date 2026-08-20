@@ -59,6 +59,20 @@ jest.mock('expo-font', () => ({
   loadAsync: jest.fn().mockResolvedValue(undefined),
 }));
 
+jest.mock('expo-video', () => {
+  const { View } = require('react-native');
+  return {
+    useVideoPlayer: () => ({
+      play: jest.fn(),
+      pause: jest.fn(),
+      loop: true,
+      muted: true,
+      audioMixingMode: 'mixWithOthers',
+    }),
+    VideoView: View,
+  };
+});
+
 jest.mock('expo-keep-awake', () => ({
   useKeepAwake: jest.fn(),
   activateKeepAwakeAsync: jest.fn().mockResolvedValue(undefined),

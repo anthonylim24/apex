@@ -1,5 +1,6 @@
-import React, { createElement, useEffect } from 'react';
-import { Image, Platform, StyleSheet, View, type ImageSourcePropType } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Image, StyleSheet, View, type ImageSourcePropType } from 'react-native';
+import { useVideoPlayer, VideoView, type VideoSource } from 'expo-video';
 import Animated, {
   Easing,
   interpolate,
@@ -27,7 +28,7 @@ const PAL: Record<MovementPattern, ImageSourcePropType> = {
   carry: require('../../../../assets/pouf-pals/carry.jpg'),
 };
 
-const VIDEO: Record<MovementPattern, unknown> = {
+const VIDEO: Record<MovementPattern, VideoSource> = {
   squat: require('../../../../assets/pouf-pals/videos/squat.mp4'),
   hinge: require('../../../../assets/pouf-pals/videos/hinge.mp4'),
   lunge: require('../../../../assets/pouf-pals/videos/lunge.mp4'),
@@ -54,6 +55,8 @@ const FRAME_TONE: Record<MovementPattern, Tone> = {
 };
 
 const LOOP_MS = 2400;
+/** Tiny tiles (plan rows) stay stills so we don't spin up six players. */
+const VIDEO_MIN_SIZE = 72;
 
 type Motion = { sx: number; sy: number; dy: number; rot: number };
 
@@ -70,59 +73,56 @@ const MOTION: Record<MovementPattern, Motion> = {
   carry: { sx: 1.03, sy: 0.97, dy: 3, rot: 5 },
 };
 
-const uriFrom = (mod: unknown): string | undefined => {
-  if (typeof mod === 'string' && mod.length > 0) return mod;
-  if (typeof mod === 'number') return undefined;
-  if (mod && typeof mod === 'object') {
-    const rec = mod as { uri?: string; default?: unknown };
-    if (typeof rec.uri === 'string') return rec.uri;
-    if (rec.default !== undefined) return uriFrom(rec.default);
-  }
-  return undefined;
-};
+const PalStill = ({ pattern }: { pattern: MovementPattern }) => (
+  <Image source={PAL[pattern]} style={styles.image} resizeMode="cover" />
+);
 
-const PalClip = ({
-  pattern,
-  reducedMotion,
-}: {
-  pattern: MovementPattern;
-  reducedMotion: boolean | null;
-}) => {
-  const still = <Image source={PAL[pattern]} style={styles.image} resizeMode="cover" />;
-  if (reducedMotion || Platform.OS !== 'web') return still;
-  const src = uriFrom(VIDEO[pattern]);
-  if (!src) return still;
-  return createElement('video', {
-    src,
-    autoPlay: true,
-    loop: true,
-    muted: true,
-    playsInline: true,
-    style: { width: '100%', height: '100%', objectFit: 'cover' },
+const PalClip = ({ pattern }: { pattern: MovementPattern }) => {
+  const [ready, setReady] = useState(false);
+  const player = useVideoPlayer(VIDEO[pattern], (next) => {
+    next.loop = true;
+    next.muted = true;
+    next.audioMixingMode = 'mixWithOthers';
+    next.play();
   });
+
+  return (
+    <VideoView
+      player={player}
+      style={[styles.image, ready ? styles.clipReady : styles.clipPending]}
+      contentFit="cover"
+      nativeControls={false}
+      playsInline
+      pointerEvents="none"
+      onFirstFrameRender={() => setReady(true)}
+    />
+  );
 };
 
 /**
- * Pouf Pal demo — generated clay clip when motion is allowed (web),
- * otherwise the still with a 2.4s character loop. Reduce-motion holds
- * the still. Native keeps the still until expo-video is wired.
+ * Pouf Pal — looping exercise clip via expo-video when motion is allowed
+ * and the tile is large enough. Reduce-motion and tiny tiles use the still
+ * (with a 2.4s squash on mid-size stills).
  */
 export const PoufPal = ({
   pattern,
   size = 200,
+  framed = true,
 }: {
   pattern: MovementPattern;
   size?: number;
+  /** Rest-ring fill skips the clay frame so the clip can sit inside the timer. */
+  framed?: boolean;
 }) => {
   const reducedMotion = useReducedMotion();
+  const playClip = !reducedMotion && size >= VIDEO_MIN_SIZE;
   const t = useSharedValue(0);
   const sway = useSharedValue(0);
   const motion = MOTION[pattern];
   const frameTone = tones[FRAME_TONE[pattern]];
-  const playVideo = !reducedMotion && Platform.OS === 'web' && Boolean(uriFrom(VIDEO[pattern]));
 
   useEffect(() => {
-    if (reducedMotion || playVideo) return;
+    if (reducedMotion || playClip) return;
     t.value = withRepeat(
       withTiming(1, { duration: LOOP_MS, easing: Easing.inOut(Easing.sin) }),
       -1,
@@ -140,10 +140,10 @@ export const PoufPal = ({
       t.value = 0;
       sway.value = 0;
     };
-  }, [reducedMotion, playVideo, t, sway]);
+  }, [reducedMotion, playClip, t, sway]);
 
   const animatedStyle = useAnimatedStyle(() => {
-    if (playVideo) return {};
+    if (playClip) return {};
     const p = t.value;
     const anticipate = interpolate(p, [0, 0.12, 0.18, 1], [0, 1, 0, 0]);
     const effort = interpolate(p, [0, 0.16, 0.48, 0.62, 1], [0, 0, 1, 1, 0]);
@@ -164,14 +164,19 @@ export const PoufPal = ({
     <View
       style={[
         styles.frame,
-        clay.card,
-        { width: size, height: size, borderColor: frameTone },
+        framed ? clay.card : styles.bare,
+        { width: size, height: size, borderColor: framed ? frameTone : 'transparent' },
       ]}
     >
-      <View style={styles.clip}>
-        <View style={styles.shine} pointerEvents="none" />
+      <View style={[styles.clip, !framed && styles.clipBare]}>
+        {framed ? <View style={styles.shine} pointerEvents="none" /> : null}
         <Animated.View style={[styles.stage, animatedStyle]}>
-          <PalClip pattern={pattern} reducedMotion={reducedMotion} />
+          <PalStill pattern={pattern} />
+          {playClip ? (
+            <View style={styles.clipLayer}>
+              <PalClip key={pattern} pattern={pattern} />
+            </View>
+          ) : null}
         </Animated.View>
       </View>
     </View>
@@ -211,5 +216,16 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
   },
+  clipLayer: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  },
   image: { width: '100%', height: '100%' },
+  bare: { borderWidth: 0, backgroundColor: 'transparent' },
+  clipBare: { borderRadius: 0 },
+  clipPending: { opacity: 0 },
+  clipReady: { opacity: 1 },
 });

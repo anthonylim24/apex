@@ -6,9 +6,9 @@ import { AppText } from '../primitives';
 import { PoufPal } from './poufPal';
 
 /**
- * Exercise demonstration: a clay Pouf Pal still, looped with a 2.4s
- * squash/stretch that follows the movement tempo. Reduce-motion holds
- * the still. PoseGlyph still uses the procedural choreography data.
+ * Exercise demonstration: a Pouf Pal clip of the movement (expo-video),
+ * or the clay still with a 2.4s squash when motion is reduced or the
+ * tile is too small. PoseGlyph still uses the procedural choreography.
  */
 
 /** Which held-equipment visual to use for an exercise (pose glyphs). */
