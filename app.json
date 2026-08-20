@@ -42,7 +42,8 @@
         {
           "defaultChannel": "rest-timer"
         }
-      ]
+      ],
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true,
