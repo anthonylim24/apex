@@ -83,8 +83,13 @@ const PalClip = ({ pattern }: { pattern: MovementPattern }) => {
     next.loop = true;
     next.muted = true;
     next.audioMixingMode = 'mixWithOthers';
-    next.play();
   });
+
+  // Native can play in the setup callback; web's player.play() is a no-op until
+  // VideoView mounts the <video>, so start after layout.
+  useEffect(() => {
+    player.play();
+  }, [player]);
 
   return (
     <VideoView
