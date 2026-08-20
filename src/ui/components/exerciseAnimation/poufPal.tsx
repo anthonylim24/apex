@@ -170,7 +170,12 @@ export const PoufPal = ({
       style={[
         styles.frame,
         framed ? clay.card : styles.bare,
-        { width: size, height: size, borderColor: framed ? frameTone : 'transparent' },
+        {
+          width: size,
+          height: size,
+          borderColor: framed ? frameTone : 'transparent',
+          borderRadius: framed ? radius.lg : radius.full,
+        },
       ]}
     >
       <View style={[styles.clip, !framed && styles.clipBare]}>
@@ -230,7 +235,7 @@ const styles = StyleSheet.create({
   },
   image: { width: '100%', height: '100%' },
   bare: { borderWidth: 0, backgroundColor: 'transparent' },
-  clipBare: { borderRadius: 0 },
+  clipBare: { borderRadius: radius.full },
   clipPending: { opacity: 0 },
   clipReady: { opacity: 1 },
 });
