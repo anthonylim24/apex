@@ -36,6 +36,20 @@ const startGeneratedWorkout = async (page: Page): Promise<void> => {
   await expect(page.getByTestId('player-exercise-name')).not.toBeEmpty();
 };
 
+const expectPlayingPoufClip = async (page: Page, within: string): Promise<void> => {
+  const video = page.getByTestId(within).locator('video').first();
+  await video.scrollIntoViewIfNeeded();
+  await expect(video).toBeVisible();
+  await expect
+    .poll(async () =>
+      video.evaluate((el) => {
+        const node = el as HTMLVideoElement;
+        return Boolean(node.src) && !node.paused && node.readyState >= 2 && !node.ended;
+      }),
+    )
+    .toBe(true);
+};
+
 const logSetAndSkipRest = async (page: Page, rpe?: number): Promise<void> => {
   if (rpe !== undefined) {
     await page.getByTestId(`set-logger-effort-${rpe}`).click();
@@ -179,6 +193,31 @@ test('custom exercise joins the library and search', async ({ page }) => {
   await page.getByTestId('new-exercise-save').click();
   await page.getByTestId('library-search').fill('landmine');
   await expect(page.getByText(/Landmine Press/)).toBeVisible();
+});
+
+test('Pouf Pal clips play on gallery, detail, player, and rest', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await completeOnboarding(page);
+
+  await page.goto('/dev/gallery');
+  await expect(page.getByTestId('gallery-anim-squat')).toBeVisible();
+  await expect.poll(() => page.locator('video').count()).toBeGreaterThanOrEqual(11);
+  await expectPlayingPoufClip(page, 'gallery-anim-squat');
+  await expectPlayingPoufClip(page, 'gallery-rest-timer');
+
+  await page.goto('/');
+  await page.getByRole('tab', { name: /Exercises/ }).click();
+  await page.getByTestId('library-search').fill('bench');
+  await page.getByTestId('exercise-card-bench-press').click();
+  await expect(page.getByTestId('exercise-demo')).toBeVisible();
+  await expectPlayingPoufClip(page, 'exercise-animation');
+
+  await page.goto('/');
+  await startGeneratedWorkout(page);
+  await expectPlayingPoufClip(page, 'player-screen');
+  await page.getByTestId('set-logger-log').click();
+  await expect(page.getByTestId('rest-timer')).toBeVisible();
+  await expectPlayingPoufClip(page, 'rest-timer');
 });
 
 test('component gallery renders the critical components', async ({ page }) => {

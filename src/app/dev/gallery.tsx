@@ -94,6 +94,7 @@ export default function Gallery() {
           <RestTimerOverlay
             secondsRemaining={rest}
             totalSeconds={120}
+            pattern="horizontal_push"
             nextUp="Set 3 · Barbell Bench Press"
             onAdjust={(d) => setRest((r) => Math.max(0, r + d))}
             onSkip={() => setRest(0)}

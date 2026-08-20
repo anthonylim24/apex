@@ -50,6 +50,13 @@ describe('RestTimerOverlay', () => {
     await render(<RestTimerOverlay {...props} secondsRemaining={8} />);
     expect(screen.getByText('Almost go')).toBeOnTheScreen();
   });
+
+  it('keeps skip tappable when a Pouf Pal clip fills the ring', async () => {
+    await render(<RestTimerOverlay {...props} pattern="horizontal_push" />);
+    expect(screen.getByTestId('rest-timer-clock')).toHaveTextContent('1:30');
+    await fireEvent.press(screen.getByTestId('rest-timer-skip'));
+    expect(props.onSkip).toHaveBeenCalled();
+  });
 });
 
 describe('Stepper', () => {
