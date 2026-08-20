@@ -9,11 +9,14 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
-import { colors, spacing } from '../theme';
+import type { MovementPattern } from '../../domain/types';
+import { colors, radius, spacing } from '../theme';
 import { AppText, Button } from './primitives';
+import { PoufPal } from './exerciseAnimation/poufPal';
 
 const RING_SIZE = 220;
 const STROKE = 10;
+const PAL_IN_RING = RING_SIZE - STROKE * 2 - 16;
 const RADIUS = (RING_SIZE - STROKE) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 const RING_GRAD_ID = 'rest-ring-stroke';
@@ -35,6 +38,7 @@ export const RestTimerOverlay = ({
   totalSeconds,
   nextUp,
   encouragement,
+  pattern,
   onAdjust,
   onSkip,
   testID = 'rest-timer',
@@ -43,6 +47,7 @@ export const RestTimerOverlay = ({
   totalSeconds: number;
   nextUp?: string;
   encouragement?: string;
+  pattern?: MovementPattern;
   onAdjust: (deltaSeconds: number) => void;
   onSkip: () => void;
   testID?: string;
@@ -80,6 +85,11 @@ export const RestTimerOverlay = ({
         </AppText>
       ) : null}
       <Animated.View style={[styles.ringWrap, breatheStyle]}>
+        {pattern ? (
+          <View style={styles.palWell} pointerEvents="none">
+            <PoufPal pattern={pattern} size={PAL_IN_RING} framed={false} />
+          </View>
+        ) : null}
         <Svg width={RING_SIZE} height={RING_SIZE}>
           <Defs>
             <LinearGradient id={RING_GRAD_ID} x1="0" y1="0" x2="1" y2="1">
@@ -109,12 +119,14 @@ export const RestTimerOverlay = ({
           />
         </Svg>
         <View style={styles.clockOverlay} pointerEvents="none">
-          <AppText variant="displayXl" testID={`${testID}-clock`}>
-            {formatClock(secondsRemaining)}
-          </AppText>
-          <AppText variant="label" color={labelColor}>
-            {almostGo ? 'Almost go' : 'Resting'}
-          </AppText>
+          <View style={styles.clockScrim}>
+            <AppText variant="displayXl" testID={`${testID}-clock`}>
+              {formatClock(secondsRemaining)}
+            </AppText>
+            <AppText variant="label" color={labelColor}>
+              {almostGo ? 'Almost go' : 'Resting'}
+            </AppText>
+          </View>
         </View>
       </Animated.View>
       {nextUp ? (
@@ -156,6 +168,17 @@ export const RestTimerOverlay = ({
 const styles = StyleSheet.create({
   container: { alignItems: 'center', gap: spacing.lg, paddingVertical: spacing.xl },
   ringWrap: { width: RING_SIZE, height: RING_SIZE },
+  palWell: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    borderRadius: RING_SIZE / 2,
+  },
   clockOverlay: {
     position: 'absolute',
     top: 0,
@@ -164,6 +187,13 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  clockScrim: {
+    backgroundColor: 'rgba(10, 11, 14, 0.78)',
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    alignItems: 'center',
   },
   controls: {
     flexDirection: 'row',
